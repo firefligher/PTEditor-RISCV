@@ -1,6 +1,11 @@
 #include <linux/compiler.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
+/*
+ * Including linux/version.h here is required, because we need to determine
+ * what other includes we need. This depends on the Kernel version.
+ */
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 7, 0)
 #include <linux/kallsyms.h>
 #endif
 
