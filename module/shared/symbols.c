@@ -5,6 +5,8 @@
  * what other includes we need. This depends on the Kernel version.
  */
 
+#include <linux/version.h>
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 7, 0)
 #include <linux/kallsyms.h>
 #endif
