@@ -155,7 +155,7 @@ static int resolve_vm(size_t addr, vm_t* entry, int lock) {
   entry->p4d = NULL;
   entry->valid = 0;
 
-  mm = get_mm(entry->pid);
+  mm = ptedit_shared_get_mm(entry->pid);
   if(!mm) {
       return 1;
   }
