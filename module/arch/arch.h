@@ -3,6 +3,10 @@
 #include "../pteditor.h"
 #include "../shared/shared.h"
 
+#if defined(__aarch64__)
+#include "arm/shim.h"
+#endif
+
 extern int real_page_size;
 extern int real_page_shift;
 
