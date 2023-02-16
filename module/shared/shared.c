@@ -1,5 +1,7 @@
-#include <linux/current.h>
+#include <asm/current.h>
 #include <linux/pid.h>
+#include <linux/sched.h>
+
 #include "shared.h"
 
 struct mm_struct* ptedit_shared_get_mm(size_t pid) {

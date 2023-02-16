@@ -1,6 +1,6 @@
 #pragma once
 
-extern const void (*ptedit_arch_flush_tlb_mm_range)(
+extern void (*ptedit_arch_flush_tlb_mm_range)(
   struct mm_struct*,
   unsigned long,
   unsigned long,
@@ -8,4 +8,4 @@ extern const void (*ptedit_arch_flush_tlb_mm_range)(
   bool
 );
 
-extern const void (*ptedit_arch_write_cr4)(unsigned long);
+extern void (*ptedit_arch_write_cr4)(unsigned long);

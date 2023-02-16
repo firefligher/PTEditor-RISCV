@@ -1,10 +1,18 @@
+#include <linux/types.h>
+
+/*
+ * asm/invpcid.h requires the presence of u64. Hence, linux/types.h must be
+ * included first.
+ */
+
+#include <asm/invpcid.h>
+#include <asm/paravirt.h>
+#include <asm/processor-flags.h>
+#include <asm/tlbflush.h>
+
 #include <linux/cpufeature.h>
-#include <linux/invpcid.h>
 #include <linux/irqflags.h>
-#include <linux/paravirt.h>
 #include <linux/percpu.h>
-#include <linux/processor-flags.h>
-#include <linux/tlbflush.h>
 #include <linux/version.h>
 
 #include "../arch.h"

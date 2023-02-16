@@ -1,6 +1,5 @@
-#include <linux/config.h>
+#include <asm/page.h>
 #include <linux/mm.h>
-#include <linux/page.h>
 #include <linux/version.h>
 #include "../arch.h"
 

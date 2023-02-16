@@ -1,4 +1,4 @@
-#include <linux/current.h>
+#include <asm/current.h>
 #include <linux/sched.h>
 
 #include "../../shared/shared.h"

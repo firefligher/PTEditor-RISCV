@@ -3,8 +3,8 @@
 #include "../pteditor.h"
 #include "../shared/shared.h"
 
-extern const int real_page_size;
-extern const int real_page_shift;
+extern int real_page_size;
+extern int real_page_shift;
 
 int ptedit_arch_initialize_constants(void);
 int ptedit_arch_initialize_symbols(void);

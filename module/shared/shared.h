@@ -2,6 +2,7 @@
 
 #include <linux/mm_types.h>
 #include <linux/types.h>
+#include <linux/version.h>
 
 typedef struct {
     size_t pid;
