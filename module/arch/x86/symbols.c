@@ -1,6 +1,6 @@
-#include <linux/kallsyms.h>
 #include <linux/printk.h>
 
+#include "../../shared/shared.h"
 #include "../arch.h"
 #include "symbols.h"
 
@@ -19,7 +19,7 @@ void (*ptedit_arch_write_cr4)(unsigned long);
 
 int ptedit_arch_initialize_symbols(void) {
   ptedit_arch_flush_tlb_mm_range =
-    (void *) kallsyms_lookup_name(SYM_FLUSH_TLB_MM_RANGE);
+    (void *) ptedit_shared_kallsyms_lookup_name(SYM_FLUSH_TLB_MM_RANGE);
 
   if (!ptedit_arch_flush_tlb_mm_range) {
     pr_alert("Could not retrieve " SYM_FLUSH_TLB_MM_RANGE " function.\n");
@@ -27,7 +27,7 @@ int ptedit_arch_initialize_symbols(void) {
   }
 
   ptedit_arch_write_cr4 =
-    (void *) kallsyms_lookup_name(SYM_NATIVE_WRITE_C4);
+    (void *) ptedit_shared_kallsyms_lookup_name(SYM_NATIVE_WRITE_C4);
 
   if (!ptedit_arch_write_cr4) {
     pr_alert("Could not retrieve " SYM_NATIVE_WRITE_C4 " function.\n");

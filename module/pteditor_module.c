@@ -101,17 +101,6 @@ static inline int pmd_large(pmd_t pmd) {
 #endif
 #define pr_fmt(fmt) "[pteditor-module] " fmt
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
-#define KPROBE_KALLSYMS_LOOKUP 1
-typedef unsigned long (*kallsyms_lookup_name_t)(const char *name);
-kallsyms_lookup_name_t kallsyms_lookup_name_func;
-#define kallsyms_lookup_name kallsyms_lookup_name_func
-
-static struct kprobe kp = {
-    .symbol_name = "kallsyms_lookup_name"
-};
-#endif
-
 static bool device_busy = false;
 static bool mm_is_locked = false;
 
@@ -527,17 +516,6 @@ static struct kretprobe probe_devmem = {.handler = devmem_bypass, .maxactive = 2
 static int __init pteditor_init(void) {
   int r;
 
-#ifdef KPROBE_KALLSYMS_LOOKUP
-    register_kprobe(&kp);
-    kallsyms_lookup_name = (kallsyms_lookup_name_t) kp.addr;
-    unregister_kprobe(&kp);
-
-    if(!unlikely(kallsyms_lookup_name)) {
-      pr_alert("Could not retrieve kallsyms_lookup_name address\n");
-      return -ENXIO;
-    }
-#endif
-
   /* Register device */
   r = misc_register(&misc_dev);
   if (r != 0) {
@@ -547,7 +525,10 @@ static int __init pteditor_init(void) {
 
   invalidate_tlb = ptedit_arch_invalidate_tlb_kernel;
 
-  if (!ptedit_arch_initialize_symbols() ||
+  // ORDER MATTERS!
+
+  if (!ptedit_shared_initialize_symbols() ||
+      !ptedit_arch_initialize_symbols() ||
       !ptedit_arch_initialize_constants()) {
     return -ENXIO;
   }
@@ -560,10 +541,10 @@ static int __init pteditor_init(void) {
     pr_info("/dev/mem is now superuser read-/writable\n");
   }
 
-  OPS(OP_lseek) = (void*)kallsyms_lookup_name("memory_lseek");
-  OPS(read) = (void*)kallsyms_lookup_name("read_mem");
-  OPS(write) = (void*)kallsyms_lookup_name("write_mem");
-  OPS(mmap) = (void*)kallsyms_lookup_name("mmap_mem");
+  OPS(OP_lseek) = (void*)ptedit_shared_kallsyms_lookup_name("memory_lseek");
+  OPS(read) = (void*)ptedit_shared_kallsyms_lookup_name("read_mem");
+  OPS(write) = (void*)ptedit_shared_kallsyms_lookup_name("write_mem");
+  OPS(mmap) = (void*)ptedit_shared_kallsyms_lookup_name("mmap_mem");
   OPS(open) = open_umem;
 
   if (!OPS(OP_lseek) || !OPS(read) || !OPS(write) ||

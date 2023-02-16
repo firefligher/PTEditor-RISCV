@@ -18,4 +18,7 @@ typedef struct {
     size_t valid;
 } vm_t;
 
+extern unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
+
 struct mm_struct *ptedit_shared_get_mm(size_t pid);
+int ptedit_shared_initialize_symbols(void);
