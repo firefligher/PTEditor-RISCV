@@ -23,6 +23,7 @@ pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 
 #include "pteditor.h"
 #include "arch/arch.h"
+#include "shared/shared.h"
 
 MODULE_AUTHOR("Michael Schwarz");
 MODULE_DESCRIPTION("Device to play around with paging structures");
@@ -115,7 +116,6 @@ static bool device_busy = false;
 static bool mm_is_locked = false;
 
 void (*invalidate_tlb)(unsigned long);
-static struct mm_struct* get_mm(size_t);
 
 static int device_open(struct inode *inode, struct file *file) {
   /* Check if device is busy */
@@ -247,7 +247,7 @@ error_out:
 static int update_vm(ptedit_entry_t* new_entry, int lock) {
   vm_t old_entry;
   size_t addr = new_entry->vaddr;
-  struct mm_struct *mm = get_mm(new_entry->pid);
+  struct mm_struct *mm = ptedit_shared_get_mm(new_entry->pid);
   if(!mm) return 1;
 
   old_entry.pid = new_entry->pid;
@@ -375,7 +375,7 @@ static long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
         ptedit_paging_t paging;
 
         (void)from_user(&paging, (void*)ioctl_param, sizeof(paging));
-        mm = get_mm(paging.pid);
+        mm = ptedit_shared_get_mm(paging.pid);
 
 #if defined(__aarch64__)
         if(!mm || (mm && !mm->pgd)) {
@@ -408,7 +408,7 @@ static long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
         ptedit_paging_t paging = {0};
 
         (void)from_user(&paging, (void*)ioctl_param, sizeof(paging));
-        mm = get_mm(paging.pid);
+        mm = ptedit_shared_get_mm(paging.pid);
         if(!mm) return 1;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
         if(!mm_is_locked) mmap_write_lock(mm);
