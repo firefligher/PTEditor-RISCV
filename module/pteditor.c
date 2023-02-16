@@ -21,8 +21,6 @@
 pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 #endif
 
-static int real_page_size = 4096, real_page_shift = 12;
-
 #include "pteditor.h"
 #include "arch/arch.h"
 
