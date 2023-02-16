@@ -12,11 +12,15 @@
 #endif
 
 #include <linux/kprobes.h>
+#include <linux/printk.h>
+
+#include "../arch/arch.h"
 #include "shared.h"
 
 #define SYM_KALLSYMS_LOOKUP_NAME  "kallsyms_lookup_name"
 
 unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
+void (*ptedit_shared_invalidate_tlb)(unsigned long);
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
 static struct kprobe kp = {
@@ -25,6 +29,8 @@ static struct kprobe kp = {
 #endif
 
 int ptedit_shared_initialize_symbols(void) {
+  ptedit_shared_invalidate_tlb = ptedit_arch_invalidate_tlb_kernel;
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
   register_kprobe(&kp);
   ptedit_shared_kallsyms_lookup_name = (void *) kp.addr;

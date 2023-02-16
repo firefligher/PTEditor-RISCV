@@ -21,5 +21,5 @@ void ptedit_arch_vm_to_user(ptedit_entry_t *user, vm_t *vm) {
   if(vm->pud) user->pud = (vm->pud)->pud;
   if(vm->pte) user->pte = (vm->pte)->pte;
 
-  user->valid = vm->valid;  
+  user->valid = vm->valid;
 }

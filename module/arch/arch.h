@@ -10,6 +10,7 @@
 extern int real_page_size;
 extern int real_page_shift;
 
+size_t ptedit_arch_get_pat(void);
 int ptedit_arch_initialize_constants(void);
 int ptedit_arch_initialize_symbols(void);
 void ptedit_arch_invalidate_tlb(void *addr);
