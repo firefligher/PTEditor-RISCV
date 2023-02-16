@@ -24,6 +24,7 @@ pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 static int real_page_size = 4096, real_page_shift = 12;
 
 #include "pteditor.h"
+#include "arch/arch.h"
 
 MODULE_AUTHOR("Michael Schwarz");
 MODULE_DESCRIPTION("Device to play around with paging structures");
@@ -112,26 +113,10 @@ static struct kprobe kp = {
 };
 #endif
 
-typedef struct {
-    size_t pid;
-    pgd_t *pgd;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
-    p4d_t *p4d;
-#else
-    size_t *p4d;
-#endif
-    pud_t *pud;
-    pmd_t *pmd;
-    pte_t *pte;
-    size_t valid;
-} vm_t;
-
 static bool device_busy = false;
 static bool mm_is_locked = false;
 
 void (*invalidate_tlb)(unsigned long);
-void (*flush_tlb_mm_range_func)(struct mm_struct*, unsigned long, unsigned long, unsigned int, bool);
-void (*native_write_cr4_func)(unsigned long);
 static struct mm_struct* get_mm(size_t);
 
 static int device_open(struct inode *inode, struct file *file) {
@@ -153,115 +138,12 @@ static int device_release(struct inode *inode, struct file *file) {
 }
 
 static void
-_invalidate_tlb(void *addr) {
-#if defined(__i386__) || defined(__x86_64__)
-  int pcid;
-  unsigned long flags;
-  unsigned long cr4;
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 98)
-#if defined(X86_FEATURE_INVPCID_SINGLE) && defined(INVPCID_TYPE_INDIV_ADDR)
-  if (cpu_feature_enabled(X86_FEATURE_INVPCID_SINGLE)) {
-    for(pcid = 0; pcid < 4096; pcid++) {
-      invpcid_flush_one(pcid, (long unsigned int) addr);
-    }
-  } 
-  else 
-#endif
-  {
-    raw_local_irq_save(flags);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
-    cr4 = native_read_cr4();
-#else
-    cr4 = this_cpu_read(cpu_tlbstate.cr4);
-#endif
-#else
-    cr4 = __read_cr4();
-#endif
-    native_write_cr4_func(cr4 & ~X86_CR4_PGE);
-    native_write_cr4_func(cr4);
-    raw_local_irq_restore(flags);
-  }
-#else
-  asm volatile ("invlpg (%0)": : "r"(addr));
-#endif
-#elif defined(__aarch64__)
-  asm volatile ("dsb ishst");
-  asm volatile ("tlbi vmalle1is");
-  asm volatile ("dsb ish");
-  asm volatile ("isb");
-#endif
-}
-
-static void
 invalidate_tlb_custom(unsigned long addr) {
-  on_each_cpu(_invalidate_tlb, (void*) addr, 1);
-}
-
-#if defined(__aarch64__)
-typedef struct tlb_page_s {
-  struct vm_area_struct* vma;
-  unsigned long addr;
-} tlb_page_t;
-
-void _flush_tlb_page_smp(void* info) {
-  tlb_page_t* tlb_page = (tlb_page_t*) info;
-  flush_tlb_page(tlb_page->vma, tlb_page->addr);
-}
-#endif
-
-static void
-invalidate_tlb_kernel(unsigned long addr) {
-#if defined(__i386__) || defined(__x86_64__)
-  flush_tlb_mm_range_func(get_mm(task_pid_nr(current)), addr, addr + real_page_size, real_page_shift, false);
-#elif defined(__aarch64__)
-  struct vm_area_struct *vma = find_vma(current->mm, addr);
-  tlb_page_t tlb_page;
-  if (unlikely(vma == NULL || addr < vma->vm_start)) {
-    return;
-  }
-  tlb_page.vma = vma;
-  tlb_page.addr = addr;
-  on_each_cpu(_flush_tlb_page_smp, &tlb_page, 1);
-#endif
-}
-
-static void _set_pat(void* _pat) {
-#if defined(__i386__) || defined(__x86_64__)
-    int low, high;
-    size_t pat = (size_t)_pat;
-    low = pat & 0xffffffff;
-    high = (pat >> 32) & 0xffffffff;
-    asm volatile("wrmsr" : : "a"(low), "d"(high), "c"(0x277));
-#elif defined(__aarch64__)
-    size_t pat = (size_t)_pat;
-    asm volatile ("msr mair_el1, %0\n" : : "r"(pat));
-#endif
+  on_each_cpu(ptedit_arch_invalidate_tlb, (void*) addr, 1);
 }
 
 static void set_pat(size_t pat) {
-    on_each_cpu(_set_pat, (void*) pat, 1);
-}
-
-static struct mm_struct* get_mm(size_t pid) {
-  struct task_struct *task;
-  struct pid* vpid;
-
-  /* Find mm */
-  task = current;
-  if(pid != 0) {
-    vpid = find_vpid(pid);
-    if(!vpid) return NULL;
-    task = pid_task(vpid, PIDTYPE_PID);
-    if(!task) return NULL;
-  }
-  if(task->mm) {
-      return task->mm;
-  } else {
-      return task->active_mm;
-  }
-  return NULL;
+  on_each_cpu(ptedit_arch_set_pat, (void*) pat, 1);
 }
 
 static int resolve_vm(size_t addr, vm_t* entry, int lock) {
@@ -421,34 +303,6 @@ static int update_vm(ptedit_entry_t* new_entry, int lock) {
   return 0;
 }
 
-
-static void vm_to_user(ptedit_entry_t* user, vm_t* vm) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
-#if CONFIG_PGTABLE_LEVELS > 4
-    if(vm->p4d) user->p4d = (vm->p4d)->p4d;
-#else
-#if !defined(__ARCH_HAS_5LEVEL_HACK)
-    if(vm->p4d) user->p4d = (vm->p4d)->pgd.pgd;
-#else
-    if(vm->p4d) user->p4d = (vm->p4d)->pgd;    
-#endif
-#endif
-#endif
-#if defined(__i386__) || defined(__x86_64__)
-    if(vm->pgd) user->pgd = (vm->pgd)->pgd;
-    if(vm->pmd) user->pmd = (vm->pmd)->pmd;
-    if(vm->pud) user->pud = (vm->pud)->pud;
-    if(vm->pte) user->pte = (vm->pte)->pte;
-#elif defined(__aarch64__)
-    if(vm->pgd) user->pgd = pgd_val(*(vm->pgd));
-    if(vm->pmd) user->pmd = pmd_val(*(vm->pmd));
-    if(vm->pud) user->pud = pud_val(*(vm->pud));
-    if(vm->pte) user->pte = pte_val(*(vm->pte));
-#endif
-    user->valid = vm->valid;
-}
-
-
 static long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned long ioctl_param) {
   switch (ioctl_num) {
     case PTEDITOR_IOCTL_CMD_VM_RESOLVE:
@@ -458,7 +312,7 @@ static long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
         (void)from_user(&vm_user, (void*)ioctl_param, sizeof(vm_user));
         vm.pid = vm_user.pid;
         resolve_vm(vm_user.vaddr, &vm, !mm_is_locked);
-        vm_to_user(&vm_user, &vm);
+        ptedit_arch_vm_to_user(&vm_user, &vm);
         (void)to_user((void*)ioctl_param, &vm_user, sizeof(vm_user));
         return 0;
     }
@@ -601,7 +455,7 @@ static long device_ioctl(struct file *file, unsigned int ioctl_num, unsigned lon
     {
       if((int)ioctl_param != PTEDITOR_TLB_INVALIDATION_KERNEL && (int)ioctl_param != PTEDITOR_TLB_INVALIDATION_CUSTOM)
         return -1;
-      invalidate_tlb = ((int)ioctl_param == PTEDITOR_TLB_INVALIDATION_KERNEL) ? invalidate_tlb_kernel : invalidate_tlb_custom;
+      invalidate_tlb = ((int)ioctl_param == PTEDITOR_TLB_INVALIDATION_KERNEL) ? ptedit_arch_invalidate_tlb_kernel : invalidate_tlb_custom;
       return 0;
     }
 
@@ -674,9 +528,6 @@ static struct kretprobe probe_devmem = {.handler = devmem_bypass, .maxactive = 2
 
 static int __init pteditor_init(void) {
   int r;
-#if defined(__aarch64__)
-  uint64_t tcr_el1;
-#endif
 
 #ifdef KPROBE_KALLSYMS_LOOKUP
     register_kprobe(&kp);
@@ -696,42 +547,12 @@ static int __init pteditor_init(void) {
     return -ENXIO;
   }
 
-#if defined(__i386__) || defined(__x86_64__)
-  flush_tlb_mm_range_func = (void *) kallsyms_lookup_name("flush_tlb_mm_range");
-  if(!flush_tlb_mm_range_func) {
-    pr_alert("Could not retrieve flush_tlb_mm_range function\n");
+  invalidate_tlb = ptedit_arch_invalidate_tlb_kernel;
+
+  if (!ptedit_arch_initialize_symbols() ||
+      !ptedit_arch_initialize_constants()) {
     return -ENXIO;
   }
-#endif
-  invalidate_tlb = invalidate_tlb_kernel;
-  
-#if defined(__i386__) || defined(__x86_64__)
-  if (!cpu_feature_enabled(X86_FEATURE_INVPCID_SINGLE)) {
-    native_write_cr4_func = (void *) kallsyms_lookup_name("native_write_cr4");
-    if(!native_write_cr4_func) {
-        pr_alert("Could not retrieve native_write_cr4 function\n");
-        return -ENXIO;
-    }
-  }
-#endif
-
-#if defined(__aarch64__)
-  asm volatile("mrs %0, tcr_el1" : "=r" (tcr_el1));
-  switch((tcr_el1 >> 14) & 3) {
-      case 1:
-          // 64k pages
-          real_page_size = 64 * 1024;
-          real_page_shift = 16;
-          break;
-      case 2:
-          // 16k pages
-          real_page_size = 16 * 1024;
-          real_page_shift = 14;
-          break;
-      default:
-          break;
-  }
-#endif
 
   probe_devmem.kp.symbol_name = devmem_hook;
 
