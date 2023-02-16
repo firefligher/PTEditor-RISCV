@@ -1,6 +1,7 @@
 KERNEL ?= $(shell uname -r)
 ARCH ?= $(shell uname -m)
-obj-m += pteditor.o \
+obj-m += pteditor.o
+pteditor-objs := pteditor_module.o \
 arch/x86/constants.o \
 arch/x86/invalidate_tlb_kernel.o \
 arch/x86/invalidate_tlb.o \

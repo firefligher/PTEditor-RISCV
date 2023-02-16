@@ -7,6 +7,14 @@
 #define SYM_FLUSH_TLB_MM_RANGE  "flush_tlb_mm_range"
 #define SYM_NATIVE_WRITE_C4     "native_write_cr4"
 
+void (*ptedit_arch_flush_tlb_mm_range)(
+  struct mm_struct*,
+  unsigned long,
+  unsigned long,
+  unsigned int,
+  bool
+);
+
 void (*ptedit_arch_write_cr4)(unsigned long);
 
 int ptedit_arch_initialize_symbols(void) {
