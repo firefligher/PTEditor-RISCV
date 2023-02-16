@@ -4,7 +4,7 @@
 
 #include "shared.h"
 
-struct mm_struct* ptedit_shared_get_mm(size_t pid) {
+struct mm_struct *ptedit_shared_get_mm(size_t pid) {
   struct task_struct *task;
   struct pid* vpid;
 

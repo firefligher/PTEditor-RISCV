@@ -18,4 +18,4 @@ typedef struct {
     size_t valid;
 } vm_t;
 
-struct mm_struct* ptedit_shared_get_mm(size_t pid);
+struct mm_struct *ptedit_shared_get_mm(size_t pid);
