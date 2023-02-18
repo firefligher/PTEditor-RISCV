@@ -11,11 +11,10 @@
 #include <linux/miscdevice.h>
 
 /*
- * NOTE: linux/module.h and linux/version.h have to be included in order to
- *       make the preprocessor conditionals work.
+ * NOTE:  linux/version.h has to be included in order to make the preprocessor
+ *        conditionals work.
  */
 
-#include <linux/module.h>
 #include <linux/version.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)

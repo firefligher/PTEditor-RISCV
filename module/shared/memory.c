@@ -1,4 +1,10 @@
 #include <asm/current.h>
+/*
+ * NOTE:  linux/version.h has to be included in order to make the preprocessor
+ *        conditionals work.
+ */
+
+#include <linux/version.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
   #include <linux/mmap_lock.h>
