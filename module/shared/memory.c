@@ -1,4 +1,5 @@
 #include <asm/current.h>
+#include <linux/mm.h>
 
 /*
  * NOTE:  linux/version.h has to be included in order to make the preprocessor
