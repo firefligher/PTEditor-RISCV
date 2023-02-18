@@ -21,7 +21,9 @@ typedef struct {
 extern void (*ptedit_shared_invalidate_tlb)(unsigned long);
 extern unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
 
+void ptedit_shared_destroy_device(void);
 struct mm_struct *ptedit_shared_get_mm(size_t pid);
+int ptedit_shared_initialize_device(void);
 int ptedit_shared_initialize_symbols(void);
 int ptedit_shared_lock_vm(void);
 int ptedit_shared_resolve_vm(size_t addr, vm_t* entry, int lock);

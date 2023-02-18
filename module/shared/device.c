@@ -26,10 +26,51 @@
   #define to_user copy_to_user
 #endif
 
-static bool device_busy = false;
+static long device_ioctl(
+  struct file *file,
+  unsigned int ioctl_num,
+  unsigned long ioctl_param
+);
 
+static int device_open(struct inode *inode, struct file *file);
+static int device_release(struct inode *inode, struct file *file);
 static void invalidate_tlb_custom(unsigned long addr);
 static void set_pat(size_t pat);
+
+static bool device_busy = false;
+
+static struct file_operations f_ops = {.owner = THIS_MODULE,
+                                       .unlocked_ioctl = device_ioctl,
+                                       .open = device_open,
+                                       .release = device_release};
+
+static struct miscdevice misc_dev = {
+    .minor = MISC_DYNAMIC_MINOR,
+    .name = PTEDITOR_DEVICE_NAME,
+    .fops = &f_ops,
+    .mode = S_IRWXUGO,
+};
+
+/* Global stuff */
+
+void ptedit_shared_destroy_device(void) {
+  misc_deregister(&misc_dev);
+}
+
+int ptedit_shared_initialize_device(void) {
+  int r;
+
+  r = misc_register(&misc_dev);
+
+  if (r != 0) {
+    pr_alert("Failed registering device with %d\n", r);
+    return 0;
+  }
+
+  return 1;
+}
+
+/* Static stuff */
 
 static long device_ioctl(
   struct file *file,

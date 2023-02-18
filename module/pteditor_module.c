@@ -34,18 +34,6 @@ MODULE_LICENSE("GPL");
 #endif
 #define pr_fmt(fmt) "[pteditor-module] " fmt
 
-static struct file_operations f_ops = {.owner = THIS_MODULE,
-                                       .unlocked_ioctl = device_ioctl,
-                                       .open = device_open,
-                                       .release = device_release};
-
-static struct miscdevice misc_dev = {
-    .minor = MISC_DYNAMIC_MINOR,
-    .name = PTEDITOR_DEVICE_NAME,
-    .fops = &f_ops,
-    .mode = S_IRWXUGO,
-};
-
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
 static struct proc_ops umem_ops = {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
@@ -95,18 +83,10 @@ static int devmem_bypass(struct kretprobe_instance *p, struct pt_regs *regs) {
 static struct kretprobe probe_devmem = {.handler = devmem_bypass, .maxactive = 20};
 
 static int __init pteditor_init(void) {
-  int r;
-
-  /* Register device */
-  r = misc_register(&misc_dev);
-  if (r != 0) {
-    pr_alert("Failed registering device with %d\n", r);
-    return -ENXIO;
-  }
-
   // ORDER MATTERS!
 
-  if (!ptedit_shared_initialize_symbols() ||
+  if (!ptedit_shared_initialize_device() ||
+      !ptedit_shared_initialize_symbols() ||
       !ptedit_arch_initialize_symbols() ||
       !ptedit_arch_initialize_constants()) {
     return -ENXIO;
@@ -140,8 +120,7 @@ static int __init pteditor_init(void) {
 }
 
 static void __exit pteditor_exit(void) {
-  misc_deregister(&misc_dev);
-  
+  ptedit_shared_destroy_device();
   unregister_kretprobe(&probe_devmem);
 
   if (has_umem) {
