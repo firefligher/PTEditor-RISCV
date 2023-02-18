@@ -1,6 +1,15 @@
 #include <asm/io.h>
+
+/*
+ * NOTE:  linux/sched.h has to be included before asm/uaccess.h due to the
+ *        latter depnding on the definition of 'struct task_struct'.
+ */
+
+#include <linux/sched.h>
 #include <asm/uaccess.h>
 #include <linux/fs.h>
+#include <linux/miscdevice.h>
+#include <linux/module.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
   #include <linux/mmap_lock.h>
