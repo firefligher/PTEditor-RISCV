@@ -30,7 +30,6 @@
 #include <linux/types.h>
 
 #include "../arch/arch.h"
-#include "../pteditor.h"
 #include "shared.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)

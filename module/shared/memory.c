@@ -1,5 +1,4 @@
 #include <asm/current.h>
-#include <asm/pgtable.h>
 
 /*
  * NOTE:  linux/version.h has to be included in order to make the preprocessor
@@ -22,7 +21,6 @@
 #include <linux/sched.h>
 
 #include "../arch/arch.h"
-#include "../pteditor.h"
 #include "shared.h"
 
 static bool mm_is_locked = false;
@@ -202,7 +200,7 @@ int ptedit_shared_update_vm(ptedit_entry_t* new_entry) {
   if(lock) down_write(&mm->mmap_sem);
 #endif
 
-  ptedit_shared_resolve_vm(addr, &old_entry, 0);
+  ptedit_shared_resolve_vm(addr, &old_entry);
 
   /* Update entries */
   if((old_entry.valid & PTEDIT_VALID_MASK_PGD) && (new_entry->valid & PTEDIT_VALID_MASK_PGD)) {
