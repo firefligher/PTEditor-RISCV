@@ -1,4 +1,6 @@
 #include <asm/current.h>
+#include <asm/pgtable.h>
+
 /*
  * NOTE:  linux/version.h has to be included in order to make the preprocessor
  *        conditionals work.
@@ -10,7 +12,6 @@
   #include <linux/mmap_lock.h>
 #endif
 
-#include <linux/pgtable.h>
 #include <linux/pid.h>
 #include <linux/printk.h>
 
