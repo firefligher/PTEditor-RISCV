@@ -60,8 +60,9 @@ int ptedit_shared_lock_vm(void) {
   return 1;
 }
 
-int ptedit_shared_resolve_vm(size_t addr, vm_t *entry, int lock) {
+int ptedit_shared_resolve_vm(size_t addr, vm_t *entry) {
   struct mm_struct *mm;
+  bool lock = !mm_is_locked;
 
   if(!entry) return 1;
   entry->pud = NULL;
@@ -178,10 +179,11 @@ int ptedit_shared_unlock_vm(void) {
   return 1;
 }
 
-int ptedit_shared_update_vm(ptedit_entry_t* new_entry, int lock) {
+int ptedit_shared_update_vm(ptedit_entry_t* new_entry) {
   vm_t old_entry;
   size_t addr = new_entry->vaddr;
   struct mm_struct *mm = ptedit_shared_get_mm(new_entry->pid);
+  int lock = !mm_is_locked;
   if(!mm) return 1;
 
   old_entry.pid = new_entry->pid;

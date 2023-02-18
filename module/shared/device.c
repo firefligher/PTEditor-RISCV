@@ -9,7 +9,14 @@
 #include <asm/uaccess.h>
 #include <linux/fs.h>
 #include <linux/miscdevice.h>
+
+/*
+ * NOTE: linux/module.h and linux/version.h have to be included in order to
+ *       make the preprocessor conditionals work.
+ */
+
 #include <linux/module.h>
+#include <linux/version.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
   #include <linux/mmap_lock.h>
@@ -93,7 +100,7 @@ static long device_ioctl(
         vm_t vm;
         (void)from_user(&vm_user, (void*)ioctl_param, sizeof(vm_user));
         vm.pid = vm_user.pid;
-        ptedit_shared_resolve_vm(vm_user.vaddr, &vm, !mm_is_locked);
+        ptedit_shared_resolve_vm(vm_user.vaddr, &vm);
         ptedit_arch_vm_to_user(&vm_user, &vm);
         (void)to_user((void*)ioctl_param, &vm_user, sizeof(vm_user));
         return 0;
@@ -102,7 +109,7 @@ static long device_ioctl(
     {
         ptedit_entry_t vm_user;
         (void)from_user(&vm_user, (void*)ioctl_param, sizeof(vm_user));
-        ptedit_shared_update_vm(&vm_user, !mm_is_locked);
+        ptedit_shared_update_vm(&vm_user);
         return 0;
     }
     case PTEDITOR_IOCTL_CMD_VM_LOCK:

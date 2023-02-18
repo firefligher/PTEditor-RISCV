@@ -28,6 +28,6 @@ struct mm_struct *ptedit_shared_get_mm(size_t pid);
 int ptedit_shared_initialize_device(void);
 int ptedit_shared_initialize_symbols(void);
 int ptedit_shared_lock_vm(void);
-int ptedit_shared_resolve_vm(size_t addr, vm_t* entry, int lock);
+int ptedit_shared_resolve_vm(size_t addr, vm_t* entry);
 int ptedit_shared_unlock_vm(void);
-int ptedit_shared_update_vm(ptedit_entry_t* new_entry, int lock);
+int ptedit_shared_update_vm(ptedit_entry_t* new_entry);
