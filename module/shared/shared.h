@@ -4,6 +4,8 @@
 #include <linux/types.h>
 #include <linux/version.h>
 
+#include "../pteditor.h"
+
 typedef struct {
     size_t pid;
     pgd_t *pgd;
