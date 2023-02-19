@@ -10,7 +10,7 @@ void ptedit_arch_invalidate_tlb_kernel(unsigned long addr) {
     ptedit_shared_get_mm(task_pid_nr(current)),
     addr,
     addr + real_page_size,
-    real_page_shift,
+    12,
     false
   );
 }

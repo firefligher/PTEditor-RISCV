@@ -14,7 +14,6 @@
 #endif
 
 extern int real_page_size;
-extern int real_page_shift;
 
 int ptedit_arch_establish_success(
   struct kretprobe_instance *rp,
