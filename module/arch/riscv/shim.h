@@ -2,6 +2,12 @@
 
 #include <asm/pgtable.h>
 
+typedef unsigned long pteval_t;
+typedef unsigned long pgdval_t;
+typedef unsigned long pmdval_t;
+typedef unsigned long pudval_t;
+typedef unsigned long p4dval_t;
+
 static inline pte_t native_make_pte(pteval_t val) {
   return __pte(val);
 }

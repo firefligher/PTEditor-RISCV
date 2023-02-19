@@ -124,7 +124,6 @@ int ptedit_shared_resolve_vm(size_t addr, vm_t *entry) {
   entry->valid |= PTEDIT_VALID_MASK_PUD;
 #endif
 
-
   /* Get offset of PMD (page middle directory) */
   entry->pmd = pmd_offset(entry->pud, addr);
   if (pmd_none(*(entry->pmd)) || pud_large(*(entry->pud))) {
