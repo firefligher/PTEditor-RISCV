@@ -2,3 +2,4 @@ Paging pieces:  https://lwn.net/Articles/717293/
 KProbes:        https://www.kernel.org/doc/Documentation/kprobes.txt
 /dev/mem:       https://web.archive.org/web/20151013004151/https://www.libcrack.so/2012/09/02/bypassing-devmem_is_allowed-with-kprobes/
 RISC-V flags:   https://github.com/riscv-non-isa/riscv-c-api-doc/blob/master/riscv-c-api.md
+Linux:          https://www.kernel.org/doc/html/latest/riscv/vm-layout.html

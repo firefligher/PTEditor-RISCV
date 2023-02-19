@@ -31,17 +31,17 @@ static inline pteval_t native_pte_val(pte_t pte) {
 
 static inline int pud_large(pud_t pud) {
 #ifdef __PAGETABLE_PMD_FOLDED 
-    return pud_val(pud) && !(pud_val(pud) & PUD_TABLE_BIT);
+  return pud_val(pud) && !(pud_val(pud) & PUD_TABLE_BIT);
 #else
-    return 0;
+  return 0;
 #endif
 }
 
 static inline int pmd_large(pmd_t pmd) {
 #ifdef __PAGETABLE_PMD_FOLDED
-    return pmd_val(pmd) && !(pmd_val(pmd) & PMD_TABLE_BIT);
+  return pmd_val(pmd) && !(pmd_val(pmd) & PMD_TABLE_BIT);
 #else
-    return 0;
+  return 0;
 #endif
 }
 

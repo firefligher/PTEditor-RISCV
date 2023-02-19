@@ -31,3 +31,13 @@ static inline p4d_t native_make_p4d(p4dval_t val) {
 static inline pteval_t native_pte_val(pte_t pte) {
   return pte_val(pte);
 }
+
+static inline int pud_large(pud_t pud) {
+  /* FIXME: Add an actual implementation. */
+  return 0;
+}
+
+static inline int pmd_large(pmd_t pmd) {
+  /* FIXME: Add an actual implementation. */
+  return 0;
+}
