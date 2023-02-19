@@ -36,7 +36,7 @@ int ptedit_shared_initialize_symbols(void) {
   ptedit_shared_kallsyms_lookup_name = (void *) kp.addr;
   unregister_kprobe(&kp);
 
-  if(!unlikely(kallsyms_lookup_name)) {
+  if(!unlikely(ptedit_shared_kallsyms_lookup_name)) {
     pr_alert("Could not retrieve " SYM_KALLSYMS_LOOKUP_NAME " address.\n");
     return 0;
   }
