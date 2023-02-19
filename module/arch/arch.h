@@ -1,5 +1,7 @@
 #pragma once
 
+#include <linux/kprobes.h>
+
 #include "../pteditor.h"
 #include "../shared/shared.h"
 
@@ -9,6 +11,11 @@
 
 extern int real_page_size;
 extern int real_page_shift;
+
+int ptedit_arch_establish_success(
+  struct kretprobe_instance *rp,
+  struct pt_regs *regs
+);
 
 size_t ptedit_arch_get_pat(void);
 int ptedit_arch_initialize_constants(void);

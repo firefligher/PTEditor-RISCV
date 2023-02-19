@@ -66,21 +66,10 @@ static int has_umem = 0;
 
 static const char *devmem_hook = "devmem_is_allowed";
 
-
-static int devmem_bypass(struct kretprobe_instance *p, struct pt_regs *regs) {
-#if defined(__aarch64__)
-  if (regs->regs[0] == 0) {
-    regs->regs[0] = 1;
-  }
-#else
-  if (regs->ax == 0) {
-    regs->ax = 1;
-  }
-#endif
-  return 0;
-}
-
-static struct kretprobe probe_devmem = {.handler = devmem_bypass, .maxactive = 20};
+static struct kretprobe probe_devmem = {
+  .handler = ptedit_arch_establish_success,
+  .maxactive = 20
+};
 
 static int __init pteditor_init(void) {
   // ORDER MATTERS!
