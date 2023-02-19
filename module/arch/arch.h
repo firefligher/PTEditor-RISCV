@@ -5,8 +5,12 @@
 #include "../pteditor.h"
 #include "../shared/shared.h"
 
-#if defined(__aarch64__)
-#include "arm/shim.h"
+#ifdef __aarch64__
+  #include "arm/shim.h"
+#endif
+
+#ifdef __riscv
+  #include "riscv/shim.h"
 #endif
 
 extern int real_page_size;
