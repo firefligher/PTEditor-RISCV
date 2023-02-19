@@ -1,6 +1,6 @@
 #pragma once
 
-#include <asm/pagetable.h>
+#include <asm/pgtable.h>
 
 static inline pte_t native_make_pte(pteval_t val) {
   return __pte(val);
