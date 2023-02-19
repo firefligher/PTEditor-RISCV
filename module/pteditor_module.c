@@ -74,9 +74,9 @@ static struct kretprobe probe_devmem = {
 static int __init pteditor_init(void) {
   // ORDER MATTERS!
 
-  if (!ptedit_shared_initialize_device() ||
-      !ptedit_shared_initialize_symbols() ||
+  if (!ptedit_shared_initialize_symbols() ||
       !ptedit_arch_initialize_symbols() ||
+      !ptedit_shared_initialize_device() ||
       !ptedit_arch_initialize_constants()) {
     return -ENXIO;
   }
