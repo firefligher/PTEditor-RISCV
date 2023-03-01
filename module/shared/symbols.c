@@ -87,19 +87,15 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
    */
 
   struct file *kallsyms_file;
-  mm_segment_t stored_fs;
   unsigned long long int addr_fixed_point, addr_kallsyms_lookup_name;
   char buf[BUFFER_SIZE + 1];
   size_t buf_offset;
   loff_t file_offset;
 
-  stored_fs = get_fs();
-  set_fs(get_ds());
   kallsyms_file = filp_open(PATH_KALLSYMS_FILE, O_RDONLY, 0);
 
   if (!kallsyms_file || IS_ERR(kallsyms_file)) {
     pr_warn("Cannot open file at '" PATH_KALLSYMS_FILE "'.\n");
-    set_fs(stored_fs);
     return 0;
   }
 
@@ -113,11 +109,11 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
     unsigned long long int sym_addr;
     char *buf_newline, sym_name[26];
 
-    buf_read = vfs_read(
+    buf_read = kernel_read(
       kallsyms_file,
       buf + buf_offset,
       BUFFER_SIZE - buf_offset,
-      file_offset
+      &file_offset
     );
 
     if (buf_read < 1) {
@@ -126,7 +122,6 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
 
     /* Important: Place the trailing zero byte. */
 
-    file_offset += buf_read;
     buf_limit = buf_offset + buf_read;
     buf[buf_limit] = 0;
 
@@ -139,7 +134,7 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
       if (strcmp(SYM_KALLSYMS_LOOKUP_NAME, sym_name) == 0) {
         addr_kallsyms_lookup_name = sym_addr;
       }
-      
+
       if (strcmp(SYM_PTEDIT_FIXED_POINT, sym_name) == 0) {
         addr_fixed_point = sym_addr;
       }
@@ -171,7 +166,6 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
      buf_offset = buf_limit - buf_newline_offset - 1;
   } while (!addr_fixed_point || !addr_kallsyms_lookup_name);
 
-  set_fs(stored_fs);
   filp_close(kallsyms_file, 0);
 
   if (!addr_fixed_point || addr_kallsyms_lookup_name) {
