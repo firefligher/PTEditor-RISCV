@@ -29,6 +29,16 @@ MODULE_AUTHOR("Michael Schwarz");
 MODULE_DESCRIPTION("Device to play around with paging structures");
 MODULE_LICENSE("GPL");
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+
+/**
+ * We need the following namespace import in order to be able to use
+ * kernel_read.
+ */
+
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+#endif
+
 #ifdef pr_fmt
 #undef pr_fmt
 #endif

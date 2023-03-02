@@ -9,7 +9,7 @@
 #define PATH_KALLSYMS_FILE        "/proc/kallsyms"
 #define SYM_KALLSYMS_LOOKUP_NAME  "kallsyms_lookup_name"
 #define SYM_PTEDIT_FIXED_POINT    "ptedit_shared_fixed_point"
-#define BUFFER_SIZE               256
+#define BUFFER_SIZE               4096
 
 unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
 void (*ptedit_shared_invalidate_tlb)(unsigned long);
@@ -47,6 +47,7 @@ int ptedit_shared_initialize_symbols(void) {
 }
 
 static int resolve_kallsyms_lookup_name_with_kprobe(void) {
+    return 0;
   struct kprobe probe = {
     .symbol_name = SYM_KALLSYMS_LOOKUP_NAME
   };
@@ -87,10 +88,10 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
    */
 
   struct file *kallsyms_file;
-  unsigned long long int addr_fixed_point, addr_kallsyms_lookup_name;
+  unsigned long long int addr_fixed_point = 0, addr_kallsyms_lookup_name = 0;
   char buf[BUFFER_SIZE + 1];
-  size_t buf_offset;
-  loff_t file_offset;
+  size_t buf_offset = 0;
+  loff_t file_offset = 0;
 
   kallsyms_file = filp_open(PATH_KALLSYMS_FILE, O_RDONLY, 0);
 
@@ -99,15 +100,11 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
     return 0;
   }
 
-  file_offset = 0;
-  addr_fixed_point = 0;
-  addr_kallsyms_lookup_name = 0;
-
   do {
     size_t buf_limit, buf_newline_offset;
     ssize_t buf_read;
-    unsigned long long int sym_addr;
-    char *buf_newline, sym_name[26];
+    char *buf_newline;
+    int skip_one_line_only = 0;
 
     buf_read = kernel_read(
       kallsyms_file,
@@ -128,23 +125,36 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
     /* Scan for the symbols and store their addresses. */
 
     if (
-      sscanf(buf, "%llx T %20s\n", &sym_addr, sym_name) == 2 ||
-      sscanf(buf, "%llx t %25s\n", &sym_addr, sym_name) == 2
+      (!addr_kallsyms_lookup_name && strstr(buf, SYM_KALLSYMS_LOOKUP_NAME)) ||
+      (!addr_fixed_point && strstr(buf, SYM_PTEDIT_FIXED_POINT))
     ) {
-      if (strcmp(SYM_KALLSYMS_LOOKUP_NAME, sym_name) == 0) {
-        addr_kallsyms_lookup_name = sym_addr;
-      }
+      char sym_name[26], sym_type;
+      unsigned long long int sym_addr;
 
-      if (strcmp(SYM_PTEDIT_FIXED_POINT, sym_name) == 0) {
-        addr_fixed_point = sym_addr;
+      skip_one_line_only = 1;
+
+      if (sscanf(buf, "%llx %c %25s\n", &sym_addr, &sym_type, sym_name) == 3) {
+        if (
+          sym_type == 'T' &&
+          strcmp(SYM_KALLSYMS_LOOKUP_NAME, sym_name) == 0
+        ) {
+          addr_kallsyms_lookup_name = sym_addr;
+        }
+
+        if (sym_type == 't' && strcmp(SYM_PTEDIT_FIXED_POINT, sym_name) == 0) {
+          addr_fixed_point = sym_addr;
+        }
       }
     }
 
-    /* Remove one line and continue. */
+    /* Remove all complete lines and continue. */
 
-    buf_newline = strchr(buf, '\n');
+    buf_newline = skip_one_line_only
+      ? strchr(buf, '\n')
+      : strrchr(buf, '\n');
 
     if (!buf_newline) {
+      pr_info("No newline!");
       break;
     }
 
@@ -157,21 +167,40 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
      * iteration.
      */
 
-     memmove(
+    memmove(
       buf,
       buf + buf_newline_offset + 1,
       buf_limit - buf_newline_offset - 1
     );
 
-     buf_offset = buf_limit - buf_newline_offset - 1;
+    buf_offset = buf_limit - buf_newline_offset - 1;
   } while (!addr_fixed_point || !addr_kallsyms_lookup_name);
 
   filp_close(kallsyms_file, 0);
 
-  if (!addr_fixed_point || addr_kallsyms_lookup_name) {
-    pr_warn("Failed to identify symbols.\n");
+  if (!addr_fixed_point || !addr_kallsyms_lookup_name) {
+    pr_warn(
+      "Failed to identify symbols. ("
+      SYM_PTEDIT_FIXED_POINT
+      ": %llx, "
+      SYM_KALLSYMS_LOOKUP_NAME
+      ": %llx)\n",
+      addr_fixed_point,
+      addr_kallsyms_lookup_name
+    );
+
     return 0;
   }
+
+  pr_info(
+    "Identified symbols. ("
+    SYM_PTEDIT_FIXED_POINT
+    ": %llx, "
+    SYM_KALLSYMS_LOOKUP_NAME
+    ": %llx)\n",
+    addr_fixed_point,
+    addr_kallsyms_lookup_name
+  );
 
   /* Sanity check. */
 
