@@ -90,8 +90,6 @@ static int __init pteditor_init(void) {
     pr_info("/dev/mem is now superuser read-/writable\n");
   }
 
-  /* Premature return for the sake of testing. */
-
   OPS(OP_lseek) = (void*)ptedit_shared_kallsyms_lookup_name("memory_lseek");
   OPS(read) = (void*)ptedit_shared_kallsyms_lookup_name("read_mem");
   OPS(write) = (void*)ptedit_shared_kallsyms_lookup_name("write_mem");
