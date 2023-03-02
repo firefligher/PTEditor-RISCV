@@ -74,13 +74,6 @@ static struct file_operations umem_ops = {.owner = THIS_MODULE};
 static int open_umem(struct inode *inode, struct file *filp) { return 0; }
 static int has_umem = 0;
 
-static const char *devmem_hook = "devmem_is_allowed";
-
-static struct kretprobe probe_devmem = {
-  .handler = ptedit_arch_establish_success,
-  .maxactive = 20
-};
-
 static int __init pteditor_init(void) {
   // ORDER MATTERS!
 
@@ -91,9 +84,7 @@ static int __init pteditor_init(void) {
     return -ENXIO;
   }
 
-  probe_devmem.kp.symbol_name = devmem_hook;
-
-  if (register_kretprobe(&probe_devmem) < 0) {
+  if (!ptedit_arch_install_devmem_hook()) {
     pr_alert("Could not bypass /dev/mem restriction\n");
   } else {
     pr_info("/dev/mem is now superuser read-/writable\n");
@@ -124,7 +115,7 @@ static int __init pteditor_init(void) {
 
 static void __exit pteditor_exit(void) {
   ptedit_shared_destroy_device();
-  unregister_kretprobe(&probe_devmem);
+  ptedit_arch_uninstall_devmem_hook();
 
   if (has_umem) {
     pr_info("Remove unprivileged memory access\n");
