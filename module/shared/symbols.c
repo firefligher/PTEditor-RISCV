@@ -47,7 +47,6 @@ int ptedit_shared_initialize_symbols(void) {
 }
 
 static int resolve_kallsyms_lookup_name_with_kprobe(void) {
-    return 0;
   struct kprobe probe = {
     .symbol_name = SYM_KALLSYMS_LOOKUP_NAME
   };
