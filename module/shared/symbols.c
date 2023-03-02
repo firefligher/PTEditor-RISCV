@@ -2,6 +2,7 @@
 #include <linux/fs.h>
 #include <linux/kprobes.h>
 #include <linux/printk.h>
+#include <linux/slab.h>
 
 #include "../arch/arch.h"
 #include "shared.h"
@@ -86,7 +87,7 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
 
   struct file *kallsyms_file;
   unsigned long long int addr_fixed_point = 0, addr_kallsyms_lookup_name = 0;
-  char buf[BUFFER_SIZE + 1];
+  char *buf;
   size_t buf_offset = 0;
   loff_t file_offset = 0;
 
@@ -96,6 +97,13 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
     pr_warn("Cannot open file at '" PATH_KALLSYMS_FILE "'.\n");
     return 0;
   }
+
+  /*
+   * Since maximum stack frame sizes and the defined value for BUFFER_SIZE may
+   * change over time, heap-allocated memory is safer.
+   */
+
+  buf = kmalloc(BUFFER_SIZE + 1, GFP_KERNEL);
 
   do {
     size_t buf_limit, buf_newline_offset;
@@ -173,6 +181,7 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
     buf_offset = buf_limit - buf_newline_offset - 1;
   } while (!addr_fixed_point || !addr_kallsyms_lookup_name);
 
+  kfree(buf);
   filp_close(kallsyms_file, 0);
 
   if (!addr_fixed_point || !addr_kallsyms_lookup_name) {
