@@ -80,10 +80,8 @@ static int resolve_kallsyms_lookup_name_with_kprobe(void) {
 
 static int resolve_kallsyms_lookup_name_with_fs(void) {
   /*
-   * Adapted from https://stackoverflow.com/a/1184346.
-   * According to https://stackoverflow.com/a/53917617, this does not work with
-   * never kernels anymore and a slightly adjusted variant of this method has
-   * to be used.
+   * Adapted from https://stackoverflow.com/a/1184346 and
+   * https://stackoverflow.com/a/53917617.
    */
 
   struct file *kallsyms_file;
