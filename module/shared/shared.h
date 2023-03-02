@@ -3,6 +3,7 @@
 #include <linux/mm_types.h>
 #include <linux/types.h>
 #include <linux/version.h>
+#include <asm/pgtable.h>
 
 #include "../pteditor.h"
 
