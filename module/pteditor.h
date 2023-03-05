@@ -13,15 +13,6 @@
 #undef LINUX
 #endif
 
-
-#if defined(LINUX)
-#define PTEDITOR_DEVICE_NAME "pteditor"
-#define PTEDITOR_DEVICE_PATH "/dev/" PTEDITOR_DEVICE_NAME
-#else
-#define PTEDITOR_DEVICE_NAME L"PTEditorLink"
-#define PTEDITOR_DEVICE_PATH L"\\\\.\\" PTEDITOR_DEVICE_NAME
-#endif
-
 /**
  * Structure containing the page-table entries of all levels.
  * The Linux names are aliased with the Intel names.

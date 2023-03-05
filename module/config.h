@@ -5,8 +5,22 @@
  * of this module and will be stored in the kernel log.
  */
 
-#ifdef pr_fmt
+#ifdef LINUX
+  #ifdef pr_fmt
     #undef pr_fmt
+  #endif
+
+  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #endif
 
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+/*
+ * Define the paths for command device.
+ */
+
+#ifdef LINUX
+  #define PTEDITOR_DEVICE_NAME "pteditor"
+  #define PTEDITOR_DEVICE_PATH "/dev/" PTEDITOR_DEVICE_NAME
+#else
+  #define PTEDITOR_DEVICE_NAME L"PTEditorLink"
+  #define PTEDITOR_DEVICE_PATH L"\\\\.\\" PTEDITOR_DEVICE_NAME
+#endif

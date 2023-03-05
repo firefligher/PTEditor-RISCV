@@ -5,7 +5,7 @@
 
 struct _cmd_entry {
   unsigned int number;
-  const ptedit_command_device_handler handler;
+  ptedit_command_device_handler handler;
 };
 
 static size_t _cmd_find_slot(int cmd_number);
@@ -54,10 +54,10 @@ static struct file_operations _device_operations = {
 };
 
 static struct miscdevice _device = {
-  .minor = MISC_DYNAMIC_MINOR,
-  .name = PTEDITOR_DEVICE_NAME,
   .fops = &_device_operations,
+  .minor = MISC_DYNAMIC_MINOR,
   .mode = S_IRWXUGO,
+  .name = PTEDITOR_DEVICE_NAME
 };
 
 /*
@@ -93,13 +93,13 @@ ptedit_status_t ptedit_command_device_install(void) {
     return PTEDIT_STATUS_SUCCESS;
   }
 
-  if (error = misc_register(&_device)) {
+  if ((error = misc_register(&_device))) {
     pr_alert("Failed installing command device with. (error = %d)\n", error);
     mutex_unlock(_device_status_mutex);
     return PTEDIT_STATUS_ERROR;
   }
 
-  _device_status_mutex = _DEVICE_STATUS_AVAILABLE;
+  _device_status = _DEVICE_STATUS_AVAILABLE;
   mutex_unlock(_device_status_mutex);
   pr_info("Successfully installed command device.\n");
 
@@ -195,13 +195,13 @@ void ptedit_command_device_uninstall(void) {
   }
 
   misc_deregister(&_device);
-  _device_status_mutex = _DEVICE_STATUS_UNINITIALIZED;
+  _device_status = _DEVICE_STATUS_UNINITIALIZED;
   mutex_unlock(_device_status_mutex);
   pr_info("Successfully uninstalled command device.\n");
 }
 
 static size_t _cmd_find_slot(int cmd_number) {
-  size_t left = 0, right = _cmd_entries_limit - 1;
+  size_t left = 0, right = _cmd_entries_limit - 1, cursor;
 
   for (cursor = 0; left < right; cursor = left + (right - left) / 2) {
     if (_cmd_entries[cursor].number < cmd_number) {
