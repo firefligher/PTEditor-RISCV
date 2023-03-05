@@ -25,6 +25,7 @@ pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 #include "pteditor.h"
 #include "arch/arch.h"
 #include "shared/shared.h"
+#include "userland/userland.h"
 
 MODULE_AUTHOR("Michael Schwarz");
 MODULE_DESCRIPTION("Device to play around with paging structures");
@@ -75,7 +76,7 @@ static int __init pteditor_init(void) {
 
   if (!ptedit_shared_initialize_symbols() ||
       !ptedit_arch_initialize_symbols() ||
-      !ptedit_shared_initialize_device() ||
+      !ptedit_command_device_install() ||
       !ptedit_arch_initialize_constants()) {
     return -ENXIO;
   }
@@ -106,7 +107,7 @@ static int __init pteditor_init(void) {
 }
 
 static void __exit pteditor_exit(void) {
-  ptedit_shared_destroy_device();
+  ptedit_command_device_uninstall();
   ptedit_arch_uninstall_devmem_hook();
 
   if (has_umem) {
