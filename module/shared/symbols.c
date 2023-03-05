@@ -224,7 +224,7 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
     return 0;
   }
 
-  ptedit_shared_kallsyms_lookup_name = (void *) addr_fixed_point;
+  ptedit_shared_kallsyms_lookup_name = (void *) addr_kallsyms_lookup_name;
   return 1;
 }
 
