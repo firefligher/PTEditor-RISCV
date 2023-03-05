@@ -41,36 +41,6 @@ MODULE_LICENSE("GPL");
 MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
-static struct proc_ops umem_ops = {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
-  .proc_flags = 0,
-#endif
-  .proc_open = NULL,
-  .proc_read = NULL,
-  .proc_write = NULL,
-  .proc_lseek = NULL,
-  .proc_release = NULL,
-  .proc_poll = NULL,
-  .proc_ioctl = NULL,
-#ifdef CONFIG_COMPAT
-  .proc_compat_ioctl = NULL,
-#endif
-  .proc_mmap = NULL,
-  .proc_get_unmapped_area = NULL,
-};
-#define OP_lseek lseek
-#define OPCAT(a, b) a ## b
-#define OPS(o) OPCAT(umem_ops.proc_, o)
-#else
-static struct file_operations umem_ops = {.owner = THIS_MODULE};
-#define OP_lseek llseek
-#define OPS(o) umem_ops.o
-#endif
-
-static int open_umem(struct inode *inode, struct file *filp) { return 0; }
-static int has_umem = 0;
-
 static int __init pteditor_init(void) {
   // ORDER MATTERS!
 
@@ -86,21 +56,8 @@ static int __init pteditor_init(void) {
   } else {
     pr_info("/dev/mem is now superuser read-/writable\n");
   }
-
-  OPS(OP_lseek) = (void*)ptedit_shared_kallsyms_lookup_name("memory_lseek");
-  OPS(read) = (void*)ptedit_shared_kallsyms_lookup_name("read_mem");
-  OPS(write) = (void*)ptedit_shared_kallsyms_lookup_name("write_mem");
-  OPS(mmap) = (void*)ptedit_shared_kallsyms_lookup_name("mmap_mem");
-  OPS(open) = open_umem;
-
-  if (!OPS(OP_lseek) || !OPS(read) || !OPS(write) ||
-      !OPS(mmap) || !OPS(open)) {
-    pr_alert("Could not create unprivileged memory access\n");
-  } else {
-    proc_create("umem", 0666, NULL, &umem_ops);
-    pr_info("Unprivileged memory access via /proc/umem set up\n");
-    has_umem = 1;
-  }
+  
+  ptedit_umem_device_install();
   pr_info("Loaded.\n");
 
   return 0;
@@ -108,12 +65,10 @@ static int __init pteditor_init(void) {
 
 static void __exit pteditor_exit(void) {
   ptedit_command_device_uninstall();
+  ptedit_command_device_clear_commands();
   ptedit_arch_uninstall_devmem_hook();
+  ptedit_umem_device_uninstall();
 
-  if (has_umem) {
-    pr_info("Remove unprivileged memory access\n");
-    remove_proc_entry("umem", NULL);
-  }
   pr_info("Removed.\n");
 }
 

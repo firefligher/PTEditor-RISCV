@@ -61,9 +61,30 @@ ptedit_status_t ptedit_command_device_register_command(
 );
 
 /**
- * Destroys the communication interface for the userland library.
+ * Uninstalls the communication interface for the userland library.
  *
  * If the corresponding device has not been installed or has been uninstalled
  * previously already, calling this function has no effect.
  */
 void ptedit_command_device_uninstall(void);
+
+/* ============================== UMEM DEVICE ============================== */
+
+/**
+ * Installs the unprivileged physical memory access.
+ *
+ * If this function is called although the access has been established already,
+ * the function call has no effect.
+ *
+ * @return  Either PTEDIT_STATUS_SUCCESS, if the access is ready, otherwise
+ *          PTEDIT_STATUS_ERROR.
+ */
+ptedit_status_t ptedit_umem_device_install(void);
+
+/**
+ * Uninstalls the unprivileged physical memory access.
+ *
+ * If this function is called although there is no access installed, the
+ * function call has no effect.
+ */
+void ptedit_umem_device_uninstall(void);
