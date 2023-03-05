@@ -1,3 +1,8 @@
+#include <linux/fs.h>
+#include <linux/miscdevice.h>
+#include <linux/slab.h>
+#include <linux/types.h>
+
 #include "../config.h"
 #include "userland.h"
 
@@ -49,8 +54,8 @@ static int _device_release(struct inode *inode, struct file *file);
 static struct file_operations _device_operations = {
   .open = _device_open,
   .owner = THIS_MODULE,
-  .release = _device_release
-  .unlocked_ioctl = _device_ioctl,
+  .release = _device_release,
+  .unlocked_ioctl = _device_ioctl
 };
 
 static struct miscdevice _device = {
@@ -86,21 +91,21 @@ void ptedit_command_device_clear_commands(void) {
 ptedit_status_t ptedit_command_device_install(void) {
   int error;
 
-  mutex_lock(_device_status_mutex);
+  mutex_lock(&_device_status_mutex);
 
-  if (_device_status != DEVICE_STATUS_UNINITIALIZED) {
-    mutex_unlock(_device_status_mutex);
+  if (_device_status != _DEVICE_STATUS_UNINITIALIZED) {
+    mutex_unlock(&_device_status_mutex);
     return PTEDIT_STATUS_SUCCESS;
   }
 
   if ((error = misc_register(&_device))) {
     pr_alert("Failed installing command device with. (error = %d)\n", error);
-    mutex_unlock(_device_status_mutex);
+    mutex_unlock(&_device_status_mutex);
     return PTEDIT_STATUS_ERROR;
   }
 
   _device_status = _DEVICE_STATUS_AVAILABLE;
-  mutex_unlock(_device_status_mutex);
+  mutex_unlock(&_device_status_mutex);
   pr_info("Successfully installed command device.\n");
 
   return PTEDIT_STATUS_SUCCESS;
@@ -187,16 +192,16 @@ ptedit_status_t ptedit_command_device_register_command(
 }
 
 void ptedit_command_device_uninstall(void) {
-  mutex_lock(_device_status_mutex);
+  mutex_lock(&_device_status_mutex);
 
-  if (_device_status == DEVICE_STATUS_UNINITIALIZED) {
-    mutex_unlock(_device_status_mutex);
+  if (_device_status == _DEVICE_STATUS_UNINITIALIZED) {
+    mutex_unlock(&_device_status_mutex);
     return;
   }
 
   misc_deregister(&_device);
   _device_status = _DEVICE_STATUS_UNINITIALIZED;
-  mutex_unlock(_device_status_mutex);
+  mutex_unlock(&_device_status_mutex);
   pr_info("Successfully uninstalled command device.\n");
 }
 
@@ -256,10 +261,10 @@ error_no_entry:
 }
 
 static int _device_open(struct inode *inode, struct file *file) {
-  mutex_lock(_device_status_mutex);
+  mutex_lock(&_device_status_mutex);
 
   if (_device_status != _DEVICE_STATUS_AVAILABLE) {
-    mutex_unlock(_device_status_mutex);
+    mutex_unlock(&_device_status_mutex);
     pr_info(
       "Attempted to lock command device although it has been locked already.\n"
     );
@@ -268,16 +273,16 @@ static int _device_open(struct inode *inode, struct file *file) {
   }
 
   _device_status = _DEVICE_STATUS_OCCUPIED;
-  mutex_unlock(_device_status_mutex);
+  mutex_unlock(&_device_status_mutex);
   pr_info("Client successfully occupied command device.\n");
 
   return 0;
 }
 
 static int _device_release(struct inode *inode, struct file *file) {
-  mutex_lock(_device_status_mutex);
+  mutex_lock(&_device_status_mutex);
   _device_status = _DEVICE_STATUS_AVAILABLE;
-  mutex_unlock(_device_status_mutex);
+  mutex_unlock(&_device_status_mutex);
 
   pr_info("Client released command device.\n");
 
