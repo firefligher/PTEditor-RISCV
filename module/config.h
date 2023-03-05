@@ -5,7 +5,7 @@
  * of this module and will be stored in the kernel log.
  */
 
-#ifdef LINUX
+#ifdef __linux__
   #ifdef pr_fmt
     #undef pr_fmt
   #endif
@@ -17,7 +17,7 @@
  * Define the paths for command device.
  */
 
-#ifdef LINUX
+#ifdef __linux__
   #define PTEDITOR_DEVICE_NAME "pteditor"
   #define PTEDITOR_DEVICE_PATH "/dev/" PTEDITOR_DEVICE_NAME
 #else

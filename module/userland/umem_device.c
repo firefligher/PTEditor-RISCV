@@ -1,9 +1,11 @@
+#include <linux/proc_fs.h>
+#include "../config.h"
 #include "../shared/shared.h"
 #include "userland.h"
 
 /* ------------------------------ DEFINITIONS ------------------------------ */
 
-struct _device_status {
+enum _device_status {
   _DEVICE_STATUS_UNINITIALIZED = 0,
   _DEVICE_STATUS_INITIALIZED
 };
@@ -13,7 +15,7 @@ struct _device_status {
 #define _SYM_IMPL_READ  "read_mem"
 #define _SYM_IMPL_WRITE "write_mem"
 
-#ifdef LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
   typedef struct proc_ops _proc_ops;
 #else
   typedef struct file_operations _proc_ops;
@@ -22,11 +24,11 @@ struct _device_status {
 static int _umem_open(struct inode *inode, struct file *filp);
 
 static _proc_ops _umem_operations;
-static struct _device_status _umem_status = _DEVICE_STATUS_UNINITIALIZED;
+static enum _device_status _umem_status = _DEVICE_STATUS_UNINITIALIZED;
 
 #define _RESOLVE_SYMBOL(dst, name) \
-  if (!(dst = ptedit_shared_kallsyms_lookup_name(name))) { \
-    pr_err("Cannot resolve symbol '%s'.\n", name) \
+  if (!(dst = (void *) ptedit_shared_kallsyms_lookup_name(name))) { \
+    pr_err("Cannot resolve symbol '%s'.\n", name); \
     return PTEDIT_STATUS_ERROR; \
   }
 
@@ -55,9 +57,9 @@ ptedit_status_t ptedit_umem_device_install(void) {
 
   /* Build the device structure. */
 
-  memset(&_umem_operations, 0, sizeof(struct _proc_ops));
+  memset(&_umem_operations, 0, sizeof(_proc_ops));
 
-#ifdef LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
   _umem_operations.proc_lseek = lseek_impl;
   _umem_operations.proc_mmap = mmap_impl;
   _umem_operations.proc_open = _umem_open;
