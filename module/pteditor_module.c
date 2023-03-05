@@ -21,6 +21,7 @@
 pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 #endif
 
+#include "config.h"
 #include "pteditor.h"
 #include "arch/arch.h"
 #include "shared/shared.h"
@@ -38,11 +39,6 @@ MODULE_LICENSE("GPL");
 
 MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 #endif
-
-#ifdef pr_fmt
-#undef pr_fmt
-#endif
-#define pr_fmt(fmt) "[pteditor-module] " fmt
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0)
 static struct proc_ops umem_ops = {

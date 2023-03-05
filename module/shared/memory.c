@@ -22,6 +22,7 @@
 #include <linux/sched.h>
 
 #include "../arch/arch.h"
+#include "../config.h"
 #include "shared.h"
 
 static bool mm_is_locked = false;
