@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../status.h"
+#include "../types.h"
 
 /*
  * ============================== COMMAND DEVICE ==============================
@@ -9,7 +9,7 @@
  * the userland library and this kernel module.
  */
 
-typedef long (*ptedit_command_device_handler) (unsigned int, unsigned long);
+typedef long (*ptedit_command_device_handler_t) (unsigned int, unsigned long);
 
 /**
  * Clears all registered command handlers and releases any potential memory
@@ -57,7 +57,7 @@ ptedit_status_t ptedit_command_device_install(void);
  */
 ptedit_status_t ptedit_command_device_register_command(
   unsigned int cmd_number,
-  const ptedit_command_device_handler handler
+  const ptedit_command_device_handler_t handler
 );
 
 /**

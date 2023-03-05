@@ -8,12 +8,8 @@ pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/shared/*.c))
 pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/userland/*.c))
 pteditor-objs := $(pteditor-objs:$(PWD)/%=%)
 
-#pteditor-objs := pteditor_module.o
-#pteditor-objs += $(shell find arch/$(ARCH) -type f)
-
-#$(patsubst %.c,%.o,$(wildcard shared/*.c))
-
 ccflags-y += -Wno-unused-result
+ccflags-y += -DPTEDIT_MODULE_BUILD
 
 all:
 	echo "$(pteditor-objs)"

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __linux__
+  #include <linux/types.h>
+#endif
+
 /*
  * Set up the common prefix for all messages that we print during the runtime
  * of this module and will be stored in the kernel log.
@@ -23,4 +27,15 @@
 #else
   #define PTEDITOR_DEVICE_NAME L"PTEditorLink"
   #define PTEDITOR_DEVICE_PATH L"\\\\.\\" PTEDITOR_DEVICE_NAME
+#endif
+
+/*
+ * Define the IOCTL stuff for the userspace command interface.
+ */
+
+#ifdef __linux__
+  #define PTEDITOR_IOCTL_MAGIC_NUMBER ((long) 0x3d17)
+
+  #define PTEDITOR_IOCTL_CMD_VM_RESOLVE \
+    _IOR(PTEDITOR_IOCTL_MAGIC_NUMBER, 1, size_t)
 #endif

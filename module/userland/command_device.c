@@ -10,7 +10,7 @@
 
 struct _cmd_entry {
   unsigned int number;
-  ptedit_command_device_handler handler;
+  ptedit_command_device_handler_t handler;
 };
 
 static size_t _cmd_find_slot(int cmd_number);
@@ -113,7 +113,7 @@ ptedit_status_t ptedit_command_device_install(void) {
 
 ptedit_status_t ptedit_command_device_register_command(
   unsigned int cmd_number,
-  const ptedit_command_device_handler handler
+  const ptedit_command_device_handler_t handler
 ) {
   size_t slot_index;
 

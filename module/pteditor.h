@@ -14,42 +14,6 @@
 #endif
 
 /**
- * Structure containing the page-table entries of all levels.
- * The Linux names are aliased with the Intel names.
- */
-typedef struct {
-    /** Process ID */
-    size_t pid;
-    /** Virtual address */
-    size_t vaddr;
-
-    /** Page global directory / Page map level 5 */
-    union {
-        size_t pgd;
-        size_t pml5;
-    };
-    /** Page directory 4 / Page map level 4 */
-    union {
-        size_t p4d;
-        size_t pml4;
-    };
-    /** Page upper directory / Page directory pointer table */
-    union {
-        size_t pud;
-        size_t pdpt;
-    };
-    /** Page middle directory / Page directory */
-    union {
-        size_t pmd;
-        size_t pd;
-    };
-    /** Page table entry */
-    size_t pte;
-    /** Bitmask indicating which entries are valid/should be updated */
-    size_t valid;
-} ptedit_entry_t;
-
-/**
  * Structure to read/write physical pages
  */
 #if defined(LINUX)

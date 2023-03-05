@@ -21,6 +21,7 @@
 pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 #endif
 
+#include "command/command.h"
 #include "config.h"
 #include "pteditor.h"
 #include "arch/arch.h"
@@ -42,7 +43,12 @@ MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 #endif
 
 static int __init pteditor_init(void) {
-  // ORDER MATTERS!
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_VM_RESOLVE,
+    ptedit_command_vm_resolve
+  );
+
+  /* ORDER MATTERS! */
 
   if (!ptedit_shared_initialize_symbols() ||
       !ptedit_arch_initialize_symbols() ||
