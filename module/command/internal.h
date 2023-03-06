@@ -9,3 +9,9 @@
   #define from_user raw_copy_from_user
   #define to_user raw_copy_to_user
 #endif
+
+static inline pid_t sanitize_pid(pid_t pid) {
+  return (pid)
+    ? pid
+    : current->pid;
+}

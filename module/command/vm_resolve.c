@@ -13,9 +13,7 @@ long ptedit_command_vm_resolve(
 
   from_user(&entry, (void *) ioctl_param, sizeof(ptedit_entry_t));
 
-  if (
-    !ptedit_vm_resolve(&vm, entry.vaddr, entry.pid ? entry.pid : current->pid)
-  ) {
+  if (!ptedit_vm_resolve(&vm, entry.vaddr, sanitize_pid(entry.pid))) {
     return -1;
   }
 
