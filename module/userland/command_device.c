@@ -187,6 +187,7 @@ ptedit_status_t ptedit_command_device_register_command(
 
    _cmd_entries[slot_index].number = cmd_number;
    _cmd_entries[slot_index].handler = handler;
+   _cmd_entries_limit++;
 
    return PTEDIT_STATUS_SUCCESS;
 }
@@ -206,7 +207,17 @@ void ptedit_command_device_uninstall(void) {
 }
 
 static size_t _cmd_find_slot(int cmd_number) {
-  size_t left = 0, right = _cmd_entries_limit - 1, cursor;
+  size_t left = 0, right = 0, cursor;
+
+  /*
+   * NOTE:  Since 'right' is unsigned, we need to do a zero-check, before
+   *        computing the right boundary. Otherwise, the decrementation may
+   *        result in an overflow.
+   */
+
+  if (_cmd_entries_limit) {
+    right = _cmd_entries_limit - 1;
+  }
 
   for (cursor = 0; left < right; cursor = left + (right - left) / 2) {
     if (_cmd_entries[cursor].number < cmd_number) {

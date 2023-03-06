@@ -86,9 +86,9 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
   struct mm_struct *mm;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-  int has_read_lock, has_write_lock;
+  int has_lock;
 #else
-  bool has_read_lock, has_write_lock;
+  bool has_lock;
 #endif
 
   /*
@@ -131,17 +131,18 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
   /*
    * Strategy
    * --------
-   * First, we try to acquire the read and write locks for the current mm
-   * without waiting. If this does not succeed with one or both of the locks,
-   * we use the mutex strategy as discussed in the _mm_semaphore structure.
+   * First, we try to acquire the write lock for the current mm without
+   * waiting. If this does not succeed, we use the mutex strategy as discussed
+   * in the _mm_semaphore structure.
+   *
+   * NOTE:  Acquiring the write-lock also blocks acquiring the read-lock by a
+   *        third-party.
    */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-  has_read_lock = down_read_trylock(&mm->mmap_sem);
-  has_write_lock = down_write_trylock(&mm->mmap_sem);
+  has_lock = down_write_trylock(&mm->mmap_sem);
 #else
-  has_read_lock = mmap_read_trylock(mm);
-  has_write_lock = mmap_write_trylock(mm);
+  has_lock = mmap_write_trylock(mm);
 #endif
 
   semaphore = kzalloc(sizeof(struct _mm_semaphore), GFP_KERNEL);
@@ -150,27 +151,17 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
   semaphore->next = _mm_semaphores_head;
   _mm_semaphores_head = semaphore;
 
-  if (!has_read_lock || !has_write_lock) {
+  if (!has_lock) {
     semaphore->initial_mutex = kmalloc(sizeof(struct mutex), GFP_KERNEL);
     mutex_init(semaphore->initial_mutex);
     mutex_lock(semaphore->initial_mutex);
     mutex_unlock(&_mm_semaphores_mutex);
 
-    if (!has_read_lock) {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-      down_read(&mm->mmap_sem);
+    down_write(&mm->mmap_sem);
 #else
-      mmap_read_lock(mm);
+    mmap_write_lock(mm);
 #endif
-    }
-
-    if (!has_write_lock) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-      down_write(&mm->mmap_sem);
-#else
-      mmap_write_lock(mm);
-#endif
-    }
 
     mutex_unlock(semaphore->initial_mutex);
     mutex_lock(&_mm_semaphores_mutex);
@@ -178,7 +169,13 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
     semaphore->initial_mutex = NULL;
   }
 
-  semaphore->counter++;
+  if (!(++semaphore->counter)) {
+    semaphore->counter--;
+    mutex_unlock(&_mm_semaphores_mutex);
+    pr_warn("Failed locking due to overflow.\n");
+    return NULL;
+  }
+
   mutex_unlock(&_mm_semaphores_mutex);
   return mm;
 }
@@ -189,6 +186,7 @@ void internal_release_mm(pid_t pid) {
   mutex_lock(&_mm_semaphores_mutex);
 
   if (!(semaphore = _find_entry(pid))) {
+    mutex_unlock(&_mm_semaphores_mutex);
     pr_warn("Tried to release mm that is not ours.\n");
     return;
   }
@@ -197,15 +195,15 @@ void internal_release_mm(pid_t pid) {
 
   if (!(--semaphore->counter)) {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-    up_read(&semaphore->mm->mmap_sem);
     up_write(&semaphore->mm->mmap_sem);
 #else
-    mmap_read_unlock(semaphore->mm);
     mmap_write_unlock(semaphore->mm);
 #endif
 
     if (semaphore->prev) {
       semaphore->prev->next = semaphore->next;
+    } else {
+      _mm_semaphores_head = semaphore->next;
     }
 
     if (semaphore->next) {
