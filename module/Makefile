@@ -13,6 +13,10 @@ pteditor-objs := $(pteditor-objs:$(PWD)/%=%)
 ccflags-y += -Wno-unused-result
 ccflags-y += -DPTEDIT_MODULE_BUILD
 
+ifdef PTEDIT_TINA_BUILD
+	ccflags-y += -DPTEDIT_TINA_FIXES
+endif
+
 all:
 	echo "$(pteditor-objs)"
 	make -C /lib/modules/${KERNEL}/build M=$(PWD) modules

@@ -1,6 +1,7 @@
+#include <linux/mm.h>
 #include <linux/uaccess.h>
-#include <asm/pgtable.h>
 
+#include "../arch/arch.h"
 #include "../config.h"
 #include "internal.h"
 #include "memory.h"

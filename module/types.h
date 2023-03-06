@@ -8,6 +8,10 @@
   #include <stddef.h>
 #endif
 
+#if defined(PTEDIT_MODULE_BUILD) && defined(PTEDIT_TINA_FIXES)
+  #include <linux/mm.h>
+#endif
+
 #ifdef __linux__
   typedef pid_t ptedit_pid_t;
 #else
