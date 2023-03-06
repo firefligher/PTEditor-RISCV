@@ -1,6 +1,7 @@
 #pragma once
 
 #include <linux/uaccess.h>
+#include <linux/version.h>
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
   #define from_user copy_from_user

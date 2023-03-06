@@ -14,6 +14,7 @@
 
 #include "../config.h"
 #include "internal.h"
+#include "memory.h"
 
 /* --------------------- MM-ENTRY-RELATED DEFINITIONS ---------------------- */
 
@@ -223,7 +224,7 @@ enum internal_release_mm_status internal_release_mm(pid_t pid) {
 }
 
 ptedit_status_t ptedit_vm_lock(pid_t pid) {
-  return (internal_acquire_mm(pid_t pid))
+  return (internal_acquire_mm(pid))
     ? PTEDIT_STATUS_SUCCESS
     : PTEDIT_STATUS_ERROR;
 }
