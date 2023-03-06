@@ -4,6 +4,8 @@ obj-m += pteditor.o
 
 pteditor-objs := $(PWD)/pteditor_module.o
 pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/arch/$(ARCH)/*.c))
+pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/command/*.c))
+pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/memory/*.c))
 pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/shared/*.c))
 pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/userland/*.c))
 pteditor-objs := $(pteditor-objs:$(PWD)/%=%)

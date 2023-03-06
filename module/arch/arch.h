@@ -21,4 +21,4 @@ void ptedit_arch_invalidate_tlb(void *addr);
 void ptedit_arch_invalidate_tlb_kernel(unsigned long addr);
 void ptedit_arch_set_pat(void *_pat);
 void ptedit_arch_uninstall_devmem_hook(void);
-void ptedit_arch_vm_to_user(ptedit_entry_t *user, vm_t *vm);
+void ptedit_arch_vm_to_user(ptedit_entry_t *user, ptedit_vm_t *vm);

@@ -2,6 +2,8 @@
 
 #ifdef __linux__
   #include <linux/types.h>
+  #include <linux/uaccess.h>
+  #include <linux/version.h>
 #else
   #include <stddef.h>
 #endif

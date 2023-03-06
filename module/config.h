@@ -39,3 +39,13 @@
   #define PTEDITOR_IOCTL_CMD_VM_RESOLVE \
     _IOR(PTEDITOR_IOCTL_MAGIC_NUMBER, 1, size_t)
 #endif
+
+/*
+ * Description TBD.
+ */
+
+#define PTEDIT_VALID_MASK_PGD (1<<0)
+#define PTEDIT_VALID_MASK_P4D (1<<1)
+#define PTEDIT_VALID_MASK_PUD (1<<2)
+#define PTEDIT_VALID_MASK_PMD (1<<3)
+#define PTEDIT_VALID_MASK_PTE (1<<4)

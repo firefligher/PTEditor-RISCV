@@ -1,3 +1,17 @@
+#include <linux/version.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
+  #include <linux/rwsem.h>
+#else
+  #include <linux/mmap_lock.h>
+#endif
+
+#include <linux/mm_types.h>
+#include <linux/mutex.h>
+#include <linux/pid.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+
 #include "../config.h"
 #include "internal.h"
 
@@ -16,10 +30,10 @@
  */
 
 struct _mm_semaphore {
-  struct mm_semaphore *prev, *next;
+  struct _mm_semaphore *prev, *next;
   pid_t pid;
   struct mm_struct *mm;
-  intmax_t counter;
+  unsigned long long counter;
 
   /**
    * If not NULL, a mutex that is locked until the corresponding mm pointer is
@@ -56,7 +70,7 @@ struct _mm_semaphore {
    * When the initial call acquired the mm lock, it releases this mutex, which
    * completes all other calls waiting for this particular pid.
    */
-  struct *mutex initial_mutex;
+  struct mutex *initial_mutex;
 };
 
 static struct _mm_semaphore *_find_entry(pid_t pid);
@@ -85,7 +99,7 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
   semaphore = _find_entry(pid);
 
   if (semaphore) {
-    struct *mutex initial_mutex = semaphore->initial_mutex;
+    struct mutex *initial_mutex = semaphore->initial_mutex;
 
     /*
      * If the initial_mutex is still existing, we have wait for it, before we
@@ -109,7 +123,7 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
    * let's do that.
    */
 
-  if (!(mm = _get_mm(pid)) {
+  if (!(mm = _get_mm(pid))) {
     mutex_unlock(&_mm_semaphores_mutex);
     return NULL;
   }
@@ -183,11 +197,11 @@ void internal_release_mm(pid_t pid) {
 
   if (!(--semaphore->counter)) {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
-    up_read(&mm->mmap_sem);
-    up_write(&mm->mmap_sem);
+    up_read(&semaphore->mm->mmap_sem);
+    up_write(&semaphore->mm->mmap_sem);
 #else
-    mmap_read_unlock(mm);
-    mmap_write_unlock(mm);
+    mmap_read_unlock(semaphore->mm);
+    mmap_write_unlock(semaphore->mm);
 #endif
 
     if (semaphore->prev) {
@@ -205,15 +219,9 @@ void internal_release_mm(pid_t pid) {
 }
 
 static struct _mm_semaphore *_find_entry(pid_t pid) {
-  struct _mm_semaphore *current;
-
-  for (
-    current = _mm_semaphores_head;
-    current && current->pid != pid;
-    current = current->next
-  ) ;
-
-  return current;
+  struct _mm_semaphore *cur;
+  for (cur = _mm_semaphores_head; cur && cur->pid != pid; cur = cur->next) ;
+  return cur;
 }
 
 static struct mm_struct *_get_mm(pid_t pid) {
@@ -222,8 +230,8 @@ static struct mm_struct *_get_mm(pid_t pid) {
 
   if (!vpid || !(task = pid_task(vpid, PIDTYPE_PID))) {
     pr_warn(
-      "Unable to resolve task for specified pid. (pid = %jd)\n",
-      (intmax_t) pid
+      "Unable to resolve task for specified pid. (pid = %lld)\n",
+      (long long) pid
     );
 
     return NULL;
