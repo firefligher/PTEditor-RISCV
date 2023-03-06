@@ -37,19 +37,19 @@ long ptedit_command_switch_tlb_invalidation(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );
+*/
 
 long ptedit_command_vm_lock(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );
 
-long ptedit_command_vm_unlock(
+long ptedit_command_vm_resolve(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );
-*/
 
-long ptedit_command_vm_resolve(
+long ptedit_command_vm_unlock(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );

@@ -44,8 +44,18 @@ MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 
 static int __init pteditor_init(void) {
   ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_VM_LOCK,
+    ptedit_command_vm_lock
+  );
+
+  ptedit_command_device_register_command(
     PTEDITOR_IOCTL_CMD_VM_RESOLVE,
     ptedit_command_vm_resolve
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_VM_UNLOCK,
+    ptedit_command_vm_unlock
   );
 
   /* ORDER MATTERS! */

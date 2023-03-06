@@ -180,20 +180,23 @@ struct mm_struct *internal_acquire_mm(pid_t pid) {
   return mm;
 }
 
-void internal_release_mm(pid_t pid) {
+enum internal_release_mm_status internal_release_mm(pid_t pid) {
   struct _mm_semaphore *semaphore;
+  enum internal_release_mm_status status = INTERNAL_RELEASE_FAILED;
 
   mutex_lock(&_mm_semaphores_mutex);
 
   if (!(semaphore = _find_entry(pid))) {
     mutex_unlock(&_mm_semaphores_mutex);
     pr_warn("Tried to release mm that is not ours.\n");
-    return;
+    return status;
   }
 
   /* Unlock and clean up, if we hit zero. */
 
   if (!(--semaphore->counter)) {
+    status = INTERNAL_RELEASE_UNLOCKED_GLOBALLY;
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 8, 0)
     up_write(&semaphore->mm->mmap_sem);
 #else
@@ -211,9 +214,35 @@ void internal_release_mm(pid_t pid) {
     }
 
     kfree(semaphore);
+  } else {
+    status = INTERNAL_RELEASE_WAS_INTERNAL_ONLY;
   }
 
   mutex_unlock(&_mm_semaphores_mutex);
+  return status;
+}
+
+ptedit_status_t ptedit_vm_lock(pid_t pid) {
+  return (internal_acquire_mm(pid_t pid))
+    ? PTEDIT_STATUS_SUCCESS
+    : PTEDIT_STATUS_ERROR;
+}
+
+ptedit_status_t ptedit_vm_unlock(pid_t pid, unsigned int flags) {
+  enum internal_release_mm_status status;
+
+  status = internal_release_mm(pid);
+
+  if (
+    !status || (
+      flags & PTEDIT_VM_UNLOCK_FAIL_ON_STILL_LOCKED &&
+      status == INTERNAL_RELEASE_WAS_INTERNAL_ONLY
+    )
+  ) {
+    return PTEDIT_STATUS_ERROR;
+  }
+
+  return PTEDIT_STATUS_SUCCESS;
 }
 
 static struct _mm_semaphore *_find_entry(pid_t pid) {
