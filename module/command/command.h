@@ -2,7 +2,6 @@
 
 /* ======================== COMMAND DEVICE HANDLERS ======================== */
 
-/*
 long ptedit_command_get_page_size(
   unsigned int ioctl_num,
   unsigned long ioctl_param
@@ -14,6 +13,11 @@ long ptedit_command_get_pat(
 );
 
 long ptedit_command_get_root(
+  unsigned int ioctl_num,
+  unsigned long ioctl_param
+);
+
+long ptedit_command_invalidate_tlb(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );
@@ -37,7 +41,6 @@ long ptedit_command_switch_tlb_invalidation(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );
-*/
 
 long ptedit_command_vm_lock(
   unsigned int ioctl_num,
@@ -54,7 +57,6 @@ long ptedit_command_vm_unlock(
   unsigned long ioctl_param
 );
 
-/*
 long ptedit_command_vm_update(
   unsigned int ioctl_num,
   unsigned long ioctl_param
@@ -64,4 +66,3 @@ long ptedit_command_write_page(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 );
-*/

@@ -44,6 +44,46 @@ MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
 
 static int __init pteditor_init(void) {
   ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_GET_PAGESIZE,
+    ptedit_command_get_page_size
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_GET_PAT,
+    ptedit_command_get_pat
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_GET_ROOT,
+     ptedit_command_get_root
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_INVALIDATE_TLB,
+    ptedit_command_invalidate_tlb
+  )
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_READ_PAGE,
+    ptedit_command_read_page
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_SET_PAT,
+    ptedit_command_set_pat
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_SET_ROOT,
+    ptedit_command_set_root
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_SWITCH_TLB_INVALIDATION,
+    ptedit_command_switch_tlb_invalidation
+  );
+
+  ptedit_command_device_register_command(
     PTEDITOR_IOCTL_CMD_VM_LOCK,
     ptedit_command_vm_lock
   );
@@ -56,6 +96,16 @@ static int __init pteditor_init(void) {
   ptedit_command_device_register_command(
     PTEDITOR_IOCTL_CMD_VM_UNLOCK,
     ptedit_command_vm_unlock
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_VM_UPDATE,
+    ptedit_command_vm_update
+  );
+
+  ptedit_command_device_register_command(
+    PTEDITOR_IOCTL_CMD_WRITE_PAGE,
+    ptedit_command_write_page
   );
 
   /* ORDER MATTERS! */
