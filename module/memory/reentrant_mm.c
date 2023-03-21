@@ -268,7 +268,7 @@ static struct mm_struct *_get_mm(pid_t pid) {
 
   if (!vpid || !(task = pid_task(vpid, PIDTYPE_PID))) {
     pr_warn(
-      "Unable to resolve task for specified pid. (pid = %lld)\n",
+      "Unable to resolve task for specified pid. (pid = %llu)\n",
       (long long) pid
     );
 

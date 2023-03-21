@@ -8,13 +8,15 @@ long ptedit_command_vm_update(
   unsigned int ioctl_num,
   unsigned long ioctl_param
 ) {
-  ptedit_entry_t *container = (ptedit_entry_t *) ioctl_param;
+  ptedit_entry_t container;
   ptedit_vm_t update;
   pgd_t new_pgd;
   ptedit_p4d_t new_p4d;
   pud_t new_pud;
   pmd_t new_pmd;
   pte_t new_pte;
+
+  from_user(&container, (void *) ioctl_param, sizeof(ptedit_entry_t));
 
   update.valid = container->valid;
 
