@@ -13,16 +13,6 @@
 #undef LINUX
 #endif
 
-/**
- * Structure to get/set the root of paging
- */
-typedef struct {
-    /** Process id */
-    size_t pid;
-    /** Physical address of paging root */
-    size_t root;
-} ptedit_paging_t;
-
 #define PTEDIT_VALID_MASK_PGD (1<<0)
 #define PTEDIT_VALID_MASK_P4D (1<<1)
 #define PTEDIT_VALID_MASK_PUD (1<<2)

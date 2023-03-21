@@ -1,3 +1,4 @@
+#include "../shared/shared.h"
 #include "command.h"
 
 long ptedit_command_invalidate_tlb(
