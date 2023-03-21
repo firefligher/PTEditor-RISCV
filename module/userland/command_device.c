@@ -232,6 +232,7 @@ static size_t _cmd_find_slot(int cmd_number) {
       continue;
     }
 
+    left = cursor;
     break;
   }
 
