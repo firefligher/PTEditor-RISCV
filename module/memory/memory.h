@@ -94,3 +94,18 @@ ptedit_status_t ptedit_vm_resolve(ptedit_vm_t *dst, void *addr, pid_t pid);
  *          cannot be resolved.
  */
 ptedit_status_t ptedit_vm_unlock(pid_t pid, unsigned int flags);
+
+/**
+ * Updates the page table entries that correspond to the specified virtual
+ * address within the context of the process with the specified pid.
+ *
+ * @param addr  The virtual address whose page table entries are updated.
+ * @param pid   The identifier of the process that is the owner of the virtual
+ *              address space.
+ *
+ * @param value The new information that is written.
+ *
+ * @return  Either PTEDIT_STATUS_SUCCESS, if performing the request page table
+ *          update succeeded, otherwise PTEDIT_STATUS_ERROR.
+ */
+ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value);

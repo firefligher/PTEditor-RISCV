@@ -1,9 +1,11 @@
 #include <linux/mm.h>
 #include <linux/printk.h>
 #include <linux/uaccess.h>
+#include <linux/version.h>
 
 #include "../arch/arch.h"
 #include "../config.h"
+#include "../shared/shared.h"
 #include "internal.h"
 #include "memory.h"
 
@@ -97,4 +99,47 @@ ptedit_status_t ptedit_vm_resolve(ptedit_vm_t *dst, void *addr, pid_t pid) {
 error_out:
   internal_release_mm(pid);
   return PTEDIT_STATUS_ERROR;
+}
+
+ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
+  ptedit_vm_t *entry;
+
+  if (!ptedit_vm_lock(pid)) {
+    return PTEDIT_STATUS_ERROR;
+  }
+
+  if (!ptedit_vm_resolve(&entry, addr, pid)) {
+    ptedit_vm_unlock(pid);
+    return PTEDIT_STATUS_ERROR;
+  }
+
+  if (vm.valid & value.valid & PTEDIT_VALID_MASK_PGD) {
+    pr_warn("Updating PGD\n");
+    set_pgd(entry.pgd, value->pgd);
+  }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+  if (vm.valid & value.valid & PTEDIT_VALID_MASK_P4D) {
+    pr_warn("Updating P4D\n");
+    set_p4d(entry.p4d, value->p4d);
+  }
+#endif
+
+  if (vm.valid & value.valid & PTEDIT_VALID_MASK_PUD) {
+    pr_warn("Updating PUD\n");
+    set_pud(entry.pud, value->pud);
+  }
+
+  if (vm.valid & value.valid & PTEDIT_VALID_MASK_PMD) {
+    pr_warn("Updating PMD\n");
+    set_pmd(entry.pmd, value->pmd);
+  }
+
+  if (vm.valid & value.valid & PTEDIT_VALID_MASK_PTE) {
+    pr_warn("Updating PTE\n");
+    set_pte(entry.pte, value->pte);
+  }
+
+  ptedit_shared_invalidate_tlb(addr);
+  ptedit_vm_unlock(pid);
 }
