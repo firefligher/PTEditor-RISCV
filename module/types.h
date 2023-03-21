@@ -88,6 +88,9 @@ typedef struct {
 } ptedit_entry_t;
 
 #ifdef __linux__
+  /**
+   * Structure to read/write physical pages.
+   */
   typedef struct {
     /** Page-frame number */
     size_t pfn;
