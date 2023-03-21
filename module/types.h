@@ -86,3 +86,19 @@ typedef struct {
   /** Bitmask indicating which entries are valid/should be updated */
   size_t valid;
 } ptedit_entry_t;
+
+#ifdef __linux__
+  typedef struct {
+    /** Page-frame number */
+    size_t pfn;
+
+    /** Virtual address */
+    size_t vaddr;
+
+    /** Page size */
+    size_t size;
+
+    /** Page content */
+    unsigned char* buffer;
+  } ptedit_page_t;
+#endif

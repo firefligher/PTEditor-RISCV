@@ -3,6 +3,23 @@
 #include "../types.h"
 
 /**
+ * Retrieves a pointer to the page with the specified page frame number and
+ * stores it in the specified dst.
+ *
+ * For compatibility reasons, this function is only capable of resolving
+ * pointers to pages that match the real_page_size. There is no support for
+ * pages of other sizes and hence callers end up accessing only pieces of a
+ * certain page, i.e. in case of a huge page.
+ *
+ * @param dst The destination for the resolved pointer.
+ * @param pfn The page frame number of the page.
+ *
+ * @return  Either PTEDIT_STATUS_SUCCESS, if the operation succeeded, otherwise
+            PTEDIT_STATUS_ERROR.
+ */
+ptedit_status_t ptedit_page_get(void **dst, unsigned long pfn);
+
+/**
  * Locks the memory management for the process corresponding to the specified
  * pid.
  *

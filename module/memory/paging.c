@@ -1,10 +1,21 @@
 #include <linux/mm.h>
+#include <linux/printk.h>
 #include <linux/uaccess.h>
 
 #include "../arch/arch.h"
 #include "../config.h"
 #include "internal.h"
 #include "memory.h"
+
+ptedit_status_t ptedit_page_get(void **dst, unsigned long pfn) {
+  if (!pfn_valid(pfn)) {
+    pr_warn("Attempted to resolve invalid page frame number: '%lu'\n", pfn);
+    return PTEDIT_STATUS_ERROR;
+  }
+
+  *dst = phys_to_virt(pfn * real_page_size);
+  return PTEDIT_STATUS_SUCCESS;
+}
 
 ptedit_status_t ptedit_vm_resolve(ptedit_vm_t *dst, void *addr, pid_t pid) {
   struct mm_struct *mm;
