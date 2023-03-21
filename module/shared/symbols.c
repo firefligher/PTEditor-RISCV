@@ -235,12 +235,12 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
  */
 
 void ptedit_shared_fixed_point(void) {
-  pr_info(" _____ _______ ______    _ _ _");
-  pr_info("|  __ \\__   __|  ____|  | (_) |");
-  pr_info("| |__) | | |  | |__   __| |_| |_ ___  _ __");
-  pr_info("|  ___/  | |  |  __| / _` | | __/ _ \\| '__|");
-  pr_info("| |      | |  | |___| (_| | | || (_) | |   ");
-  pr_info("|_|      |_|  |______\\__,_|_|\\__\\___/|_|");
+  pr_info(" _____ _______ ______    _ _ _\n");
+  pr_info("|  __ \\__   __|  ____|  | (_) |\n");
+  pr_info("| |__) | | |  | |__   __| |_| |_ ___  _ __\n");
+  pr_info("|  ___/  | |  |  __| / _` | | __/ _ \\| '__|\n");
+  pr_info("| |      | |  | |___| (_| | | || (_) | |\n");
+  pr_info("|_|      |_|  |______\\__,_|_|\\__\\___/|_|\n");
 
-  pr_warn("Do not call this function!\n");
+  pr_warn("\nDo not call this function!\n");
 }
