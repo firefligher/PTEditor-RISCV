@@ -19,6 +19,6 @@ int ptedit_arch_initialize_symbols(void);
 int ptedit_arch_install_devmem_hook(void);
 void ptedit_arch_invalidate_tlb(void *addr);
 void ptedit_arch_invalidate_tlb_kernel(unsigned long addr);
-void ptedit_arch_set_pat(size_t *pat);
+void ptedit_arch_set_pat(size_t pat);
 void ptedit_arch_uninstall_devmem_hook(void);
 void ptedit_arch_vm_to_user(ptedit_entry_t *user, ptedit_vm_t *vm);
