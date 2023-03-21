@@ -1,3 +1,4 @@
+#include <linux/limits.h>
 #include <linux/slab.h>
 
 #include "../arch/arch.h"
@@ -14,15 +15,16 @@ long ptedit_command_read_page(
   ptedit_page_t container;
   void *page;
 
+  if (SIZE_MAX > ULONG_MAX) {
+    pr_err("Unsupported scenario: max(size_t) > max(unsigned long).\n");
+    return -1;
+  }
+
   from_user(&container, (void *) ioctl_param, sizeof(ptedit_page_t));
 
-#if SIZE_MAX > ULONG_MAX
-  #error Unsupported scenario: max(size_t) > max(unsigned long).
-#else
   if (!ptedit_page_get(&page, (unsigned long) container.pfn)) {
     return -1;
   }
-#endif
 
   to_user(&container.buffer, page, real_page_size);
   return 0;

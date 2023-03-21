@@ -14,30 +14,6 @@
 #endif
 
 /**
- * Structure to read/write physical pages
- */
-#if defined(LINUX)
-typedef struct {
-    /** Page-frame number */
-    size_t pfn;
-    /** Virtual address */
-    size_t vaddr;
-    /** Page size */
-    size_t size;
-    /** Page content */
-    unsigned char* buffer;
-} ptedit_page_t;
-#else
-__pragma(pack(push, 1))
-typedef struct {
-    char content[4096];
-    size_t paddr;
-} ptedit_page_t;
-__pragma(pack(pop))
-#endif
-
-
-/**
  * Structure to get/set the root of paging
  */
 typedef struct {
