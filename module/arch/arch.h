@@ -14,6 +14,19 @@
 extern int real_page_size;
 
 size_t ptedit_arch_get_pat(void);
+
+/**
+ * Stores the physical address of the first level page table, that corresponds
+ * to the process with the specified pid, at dst.
+ *
+ * @param dst The physical address of the root-level page table.
+ * @param pid The identifier of the process whose root-level page table is
+ *            resolved.
+ *
+ * @return  Either PTEDIT_STATUS_SUCCESS, if the operation succeeded, otherwise
+ *          PTEDIT_STATUS_ERROR.
+ */
+ptedit_status_t ptedit_arch_get_page_root(size_t *dst, pid_t pid);
 int ptedit_arch_initialize_constants(void);
 int ptedit_arch_initialize_symbols(void);
 int ptedit_arch_install_devmem_hook(void);

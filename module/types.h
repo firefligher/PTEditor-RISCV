@@ -113,3 +113,14 @@ typedef enum {
 
 #define PTEDITOR_TLB_INVALIDATION_CUSTOM  (PTEDIT_TLB_INVALIDATION_CUSTOM)
 #define PTEDITOR_TLB_INVALIDATION_KERNEL  (PTEDIT_TLB_INVALIDATION_KERNEL)
+
+/**
+ * Structure to get/set the root of paging
+ */
+typedef struct {
+  /** Process id */
+  ptedit_pid_t pid;
+
+  /** Physical address of paging root */
+  size_t root;
+} ptedit_paging_t;
