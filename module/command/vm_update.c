@@ -50,7 +50,9 @@ long ptedit_command_vm_update(
     update.pte = &new_pte;
   }
 
-  return (ptedit_vm_update(container.vaddr, container.pid, &update))
-    ? 0
-    : -1;
+  return ptedit_vm_update(
+    container.vaddr,
+    sanitize_pid(container.pid),
+    &update
+  ) ? 0 : -1;
 }
