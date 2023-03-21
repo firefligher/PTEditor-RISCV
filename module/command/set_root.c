@@ -9,7 +9,8 @@ long ptedit_command_set_root(
   ptedit_paging_t container;
   from_user(&container, (void *) ioctl_param, sizeof(ptedit_paging_t));
 
-  return (ptedit_arch_set_page_root(container.pid, container.root))
-    ? 0
-    : -1;
+  return ptedit_arch_set_page_root(
+    sanitize_pid(container.pid),
+    container.root
+  ) ? 0 : -1;
 }
