@@ -3,22 +3,23 @@
 #include <linux/sched.h>
 
 #include "../../config.h"
+#include "../../memory/memory.h"
 #include "../arch.h"
 #include "symbols.h"
 
-void ptedit_arch_invalidate_tlb_kernel(unsigned long addr) {
+void ptedit_arch_invalidate_tlb_kernel(void *addr) {
   pid_t pid;
   struct mm_struct *mm;
 
-  if (!ptedit_mm_acquire(pid = task_pid_nr(current))) {
+  if (!ptedit_mm_acquire(&mm, pid = task_pid_nr(current))) {
     pr_warn("Cannot invalidate TLB with kernel strategy.\n");
     return;
   }
 
   ptedit_arch_flush_tlb_mm_range(
     mm,
-    addr,
-    addr + real_page_size,
+    (unsigned long) addr,
+    ((unsigned long) addr) + real_page_size,
     12,
     false
   );

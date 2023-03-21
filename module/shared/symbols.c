@@ -14,7 +14,7 @@
 #define BUFFER_SIZE               4096
 
 unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
-void (*ptedit_shared_invalidate_tlb)(unsigned long);
+void (*ptedit_shared_invalidate_tlb)(void *);
 
 static int resolve_kallsyms_lookup_name_with_kprobe(void);
 static int resolve_kallsyms_lookup_name_with_fs(void);

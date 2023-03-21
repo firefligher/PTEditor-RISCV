@@ -8,7 +8,7 @@
 #include "../pteditor.h"
 #include "../types.h"
 
-extern void (*ptedit_shared_invalidate_tlb)(unsigned long);
+extern void (*ptedit_shared_invalidate_tlb)(void *);
 extern unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
 
 int ptedit_shared_initialize_symbols(void);
