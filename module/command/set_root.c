@@ -1,4 +1,6 @@
+#include "../arch/arch.h"
 #include "command.h"
+#include "internal.h"
 
 long ptedit_command_set_root(
   unsigned int ioctl_num,
