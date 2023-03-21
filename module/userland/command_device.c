@@ -166,30 +166,30 @@ ptedit_status_t ptedit_command_device_register_command(
   }
 
   /*
-   * Ensure that the slot that the slot for the new entry is unoccupied, while
-   * our sorting-invariant is preserved (aka we may need to move all entries
-   * that will follow the new entry by one element unit to the right).
+   * Ensure that the slot for the new entry is unoccupied, while our
+   * sorting-invariant is preserved (aka we may need to move all entries that
+   * will follow the new entry by one element unit to the right).
    *
-   * NOTE:  We could already consider this when enlaring memory, but this would
-   *        increase the code complexity (subjectively), while benefit seems to
-   *        be very small due to the rarity of that operation.
+   * NOTE:  We could already consider this when enlarging memory, but this
+   *        would increase the code complexity (subjectively), while the
+   *        benefit seems to be very small due to the rarity of that operation.
    */
 
-   if (slot_index < _cmd_entries_limit) {
+  if (slot_index < _cmd_entries_limit) {
     memmove(
       &_cmd_entries[slot_index + 1],
       &_cmd_entries[slot_index],
-      _cmd_entries_limit - slot_index
+      sizeof(struct _cmd_entry) * (_cmd_entries_limit - slot_index)
     );
-   }
+  }
 
-   /* Insert the entry. */
+  /* Insert the entry. */
 
-   _cmd_entries[slot_index].number = cmd_number;
-   _cmd_entries[slot_index].handler = handler;
-   _cmd_entries_limit++;
+  _cmd_entries[slot_index].number = cmd_number;
+  _cmd_entries[slot_index].handler = handler;
+  _cmd_entries_limit++;
 
-   return PTEDIT_STATUS_SUCCESS;
+  return PTEDIT_STATUS_SUCCESS;
 }
 
 void ptedit_command_device_uninstall(void) {
@@ -207,7 +207,7 @@ void ptedit_command_device_uninstall(void) {
 }
 
 static size_t _cmd_find_slot(int cmd_number) {
-  size_t left = 0, right = 0, cursor;
+  size_t left = 0, right = 0;
 
   /*
    * NOTE:  Since 'right' is unsigned, we need to do a zero-check, before
@@ -219,17 +219,16 @@ static size_t _cmd_find_slot(int cmd_number) {
     right = _cmd_entries_limit - 1;
   }
 
-  for (cursor = 0; left < right; cursor = left + (right - left) / 2) {
+  while (left < right) {
+    size_t cursor = left + (right - left) / 2;
+
     if (_cmd_entries[cursor].number < cmd_number) {
       left = cursor + 1;
       continue;
     }
 
     if (_cmd_entries[cursor].number > cmd_number) {
-      right = (cursor > 0)
-        ? cursor - 1
-        : 0;
-
+      right = cursor;
       continue;
     }
 
@@ -237,13 +236,13 @@ static size_t _cmd_find_slot(int cmd_number) {
   }
 
   if (
-    cursor == _cmd_entries_limit - 1 &&
-    _cmd_entries[cursor].number < cmd_number
+    left == _cmd_entries_limit - 1 &&
+    _cmd_entries[left].number < cmd_number
   ) {
     return _cmd_entries_limit;
   }
 
-  return cursor;
+  return left;
 }
 
 static long _device_ioctl(
