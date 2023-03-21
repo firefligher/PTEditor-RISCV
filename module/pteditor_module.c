@@ -23,7 +23,6 @@ pgd_t __attribute__((weak)) __pti_set_user_pgtbl(pgd_t *pgdp, pgd_t pgd);
 
 #include "command/command.h"
 #include "config.h"
-#include "pteditor.h"
 #include "arch/arch.h"
 #include "shared/shared.h"
 #include "userland/userland.h"
