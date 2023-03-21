@@ -61,7 +61,7 @@ static int __init pteditor_init(void) {
   ptedit_command_device_register_command(
     PTEDITOR_IOCTL_CMD_INVALIDATE_TLB,
     ptedit_command_invalidate_tlb
-  )
+  );
 
   ptedit_command_device_register_command(
     PTEDITOR_IOCTL_CMD_READ_PAGE,
