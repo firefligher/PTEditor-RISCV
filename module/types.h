@@ -105,3 +105,11 @@ typedef struct {
     unsigned char* buffer;
   } ptedit_page_t;
 #endif
+
+typedef enum {
+  PTEDIT_TLB_INVALIDATION_CUSTOM = 1,
+  PTEDIT_TLB_INVALIDATION_KERNEL = 0
+} ptedit_tlb_invalidation_t;
+
+#define PTEDITOR_TLB_INVALIDATION_CUSTOM  (PTEDIT_TLB_INVALIDATION_CUSTOM)
+#define PTEDITOR_TLB_INVALIDATION_KERNEL  (PTEDIT_TLB_INVALIDATION_KERNEL)
