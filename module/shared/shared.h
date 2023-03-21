@@ -5,7 +5,6 @@
 #include <linux/version.h>
 #include <asm/pgtable.h>
 
-#include "../pteditor.h"
 #include "../types.h"
 
 extern void (*ptedit_shared_invalidate_tlb)(void *);

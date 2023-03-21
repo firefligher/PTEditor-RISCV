@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../pteditor.h"
 #include "../shared/shared.h"
 
 #ifdef __aarch64__
