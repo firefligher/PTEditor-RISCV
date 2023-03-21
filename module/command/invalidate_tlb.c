@@ -1,6 +1,7 @@
 #include <linux/printk.h>
 
 #include "../arch/arch.h"
+#include "../config.h"
 #include "../shared/shared.h"
 #include "command.h"
 

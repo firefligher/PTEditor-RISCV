@@ -223,6 +223,16 @@ enum internal_release_mm_status internal_release_mm(pid_t pid) {
   return status;
 }
 
+ptedit_status_t ptedit_mm_acquire(struct mm_struct **dst, pid_t pid) {
+  return (*dst = internal_acquire_mm(pid))
+    ? PTEDIT_STATUS_SUCCESS
+    : PTEDIT_STATUS_ERROR;
+}
+
+void ptedit_mm_release(pid_t pid) {
+  internal_release_mm(pid);
+}
+
 ptedit_status_t ptedit_vm_lock(pid_t pid) {
   return (internal_acquire_mm(pid))
     ? PTEDIT_STATUS_SUCCESS

@@ -3,6 +3,34 @@
 #include "../types.h"
 
 /**
+ * Locks the mm_struct instance of the specified pid and stores the
+ * corresponding pointer at dst.
+ *
+ * Once acquired, the mm_struct instance must be released again in order to
+ * avoid deadlocks. The acquire-strategy is reentrant-safe, if locking and
+ * unlocking are performed symmetrically.
+ *
+ * @param dst The destination for the acquired mm_struct instance.
+ * @param pid The PID of the process whose corresponding mm_struct instance
+ *            will be acquired.
+ *
+ * @return  Either PTEDIT_STATUS_SUCCESS, if the operation succeeded, otherwise
+ *          PTEDIT_STATUS_ERROR.
+ */
+ptedit_status_t ptedit_mm_acquire(struct mm_struct **dst, pid_t pid);
+
+/**
+ * Unlocks the mm_struct instance of the process that corresponds to the
+ * specified pid.
+ *
+ * This operation fails silently: If nothing can be unlocked due to lacking a
+ * corresponding lock, this is ignored.
+ *
+ * @param pid The PID of the process whose mm_struct is unlocked.
+ */
+void ptedit_mm_release(pid_t pid);
+
+/**
  * Retrieves a pointer to the page with the specified page frame number and
  * stores it in the specified dst.
  *
