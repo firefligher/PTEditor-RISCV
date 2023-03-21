@@ -226,7 +226,10 @@ static size_t _cmd_find_slot(int cmd_number) {
     }
 
     if (_cmd_entries[cursor].number > cmd_number) {
-      right = cursor - 1;
+      right = (cursor > 0)
+        ? cursor - 1
+        : 0;
+
       continue;
     }
 
