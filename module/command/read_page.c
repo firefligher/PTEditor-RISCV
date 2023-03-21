@@ -1,5 +1,4 @@
 #include <linux/limits.h>
-#include <linux/slab.h>
 
 #include "../arch/arch.h"
 #include "../memory/memory.h"
