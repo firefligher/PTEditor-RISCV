@@ -1,22 +1,25 @@
 /** @file */
 
-#ifndef _PTEDITOR_H_
-#define _PTEDITOR_H_
-
+#pragma once
 #define ptedit_fnc
 
-#include <sys/types.h>
-#include "whatweneed.h"
+#if PTEDIT_ON_LINUX
+  #include <sys/types.h>
+#endif
 
-#if defined(__i386__) || defined(__x86_64__) || defined(_WIN64)
+#if PTEDIT_ON_X86
   #include "ptedit_x86.h"
-#elif defined(__aarch64__)
+#endif
+
+#if PTEDIT_ON_ARM
   #include "ptedit_arm.h"
-#elif defined(__riscv)
+#endif
+
+#if PTEDIT_ON_RISCV
   #include "ptedit_riscv.h"
 #endif
 
-#if defined(WINDOWS)
+#if PTEDIT_ON_WINDOWS
   typedef size_t pid_t;
 #endif
 
@@ -506,5 +509,3 @@ ptedit_fnc void ptedit_print_entry(size_t entry);
 ptedit_fnc void ptedit_print_entry_line(size_t entry, int line);
 
 /** @} */
-
-#endif
