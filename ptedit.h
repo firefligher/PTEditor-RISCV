@@ -12,6 +12,8 @@
   #include "ptedit_x86.h"
 #elif defined(__aarch64__)
   #include "ptedit_arm.h"
+#elif defined(__riscv)
+  #include "ptedit_riscv.h"
 #endif
 
 #if defined(WINDOWS)
