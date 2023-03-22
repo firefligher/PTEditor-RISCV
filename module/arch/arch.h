@@ -1,15 +1,26 @@
 #pragma once
 
-#include "../shared/shared.h"
+/*#include "../shared/shared.h"*/
 
-#ifdef __aarch64__
+/*
+ * Some architectures require shims to fill some gaps in the Linux Kernel API.
+ */
+
+#if PTEDIT_ON_ARM
   #include "arm/shim.h"
 #endif
 
-#ifdef __riscv
+#if PTEDIT_ON_RISCV
   #include "riscv/shim.h"
 #endif
 
+/**
+ * The size of a usual memory page on the current system.
+ *
+ * Note that the term usual is highly interpretable, but in general this refers
+ * to the size of a page, if all available page table levels are being used,
+ * e.g. no huge tables.
+ */
 extern int real_page_size;
 
 /**

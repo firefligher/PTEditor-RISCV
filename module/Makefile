@@ -11,10 +11,10 @@ pteditor-objs += $(patsubst %.c,%.o,$(wildcard $(PWD)/userland/*.c))
 pteditor-objs := $(pteditor-objs:$(PWD)/%=%)
 
 ccflags-y += -Wno-unused-result
-ccflags-y += -DPTEDIT_MODULE_BUILD
+ccflags-y += -DPTEDIT_MODULE_BUILD=1
 
 ifdef PTEDIT_TINA_BUILD
-	ccflags-y += -DPTEDIT_TINA_FIXES
+	ccflags-y += -DPTEDIT_TINA_BUILD=1
 endif
 
 all:

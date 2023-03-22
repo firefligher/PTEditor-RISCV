@@ -1,7 +1,108 @@
 #pragma once
 
+/*
+ * Ensure that PTEDIT_MODULE_BUILD is defined.
+ *
+ * If PTEDIT_MODULE_BUILD does not resolve to zero, we build the Kernel module,
+ * otherwise we build something else.
+ */
+
+#ifndef PTEDIT_MODULE_BUILD
+  #define PTEDIT_MODULE_BUILD 0
+#endif
+
+/*
+ * Ensure that PTEDIT_TINA_BUILD is defined.
+ *
+ * If PTEDIT_TINA_BUILD does not resolve to zero, we build the Kernel module
+ * for a RISC-V Tina Kernel, otherwise we build something else.
+ */
+
+#ifndef PTEDIT_TINA_BUILD
+  #define PTEDIT_TINA_BUILD 0
+#endif
+
+/*
+ * Platform-specific macros.
+ */
+
+#define PTEDIT_PLATFORM_LINUX   0
+#define PTEDIT_PLATFORM_WINDOWS 1
+
 #ifdef __linux__
+  #define PTEDIT_CURRENT_PLATFORM PTEDIT_PLATFORM_LINUX
+#endif 
+
+#ifdef _WIN32
+  #ifdef PTEDIT_CURRENT_PLATFORM
+    #error Ambiguous platform macros present.
+  #endif
+
+  #define PTEDIT_CURRENT_PLATFORM PTEDIT_PLATFORM_WINDOWS
+#else
+  #error Unsupport platform or identification failed.
+#endif
+
+#define PTEDIT_ON_LINUX   (PTEDIT_CURRENT_PLATFORM == PTEDIT_PLATFORM_LINUX)
+#define PTEDIT_ON_WINDOWS (PTEDIT_CURRENT_PLATFORM == PTEDIT_PLATFORM_WINDOWS)
+
+/*
+ * Sanity check:  Since a module can only be built for Linux, it must apply
+ *                that, if PTEDIT_MODULE_BUILD is not zero, we must be on
+ *                Linux.
+ */
+
+#if PTEDIT_MODULE_BUILD && !PTEDIT_ON_LINUX
+  #error Invalid configuration! Not on Linux, but we do a module build!
+#endif
+
+/*
+ * Architecture-specific macros.
+ */
+
+#define PTEDIT_ARCH_X86   0
+#define PTEDIT_ARCH_ARM   1
+#define PTEDIT_ARCH_RISCV 2
+
+#if defined(__i386__) || defined(__x86_64__)
+  #define PTEDIT_CURRENT_ARCH PTEDIT_ARCH_X86
+#endif
+
+#ifdef __aarch64__
+  #ifdef PTEDIT_CURRENT_ARCH
+    #error Ambiguous architecture macros present.
+  #endif
+
+  #define PTEDIT_CURRENT_ARCH PTEDIT_ARCH_ARM
+#endif
+
+#ifdef __riscv
+  #ifdef PTEDIT_CURRENT_ARCH
+    #error Ambiguous architecture macros present.
+  #endif
+
+  #define PTEDIT_CURRENT_ARCH PTEDIT_ARCH_RISCV
+#endif
+
+#define PTEDIT_ON_ARM   (PTEDIT_CURRENT_ARCH == PTEDIT_ARCH_ARM)
+#define PTEDIT_ON_RISCV (PTEDIT_CURRENT_ARCH == PTEDIT_ARCH_RISCV)
+#define PTEDIT_ON_X86   (PTEDIT_CURRENT_ARCH == PTEDIT_ARCH_X86)
+
+/*
+ * Sanity check:  A Tina build implies RISC-V and module build.
+ */
+
+#if PTEDIT_TINA_BUILD && (!PTEDIT_ON_RISCV || !PTEDIT_MODULE_BUILD)
+  #error Invalid configuration! Tina build without RISC-V or module build.
+#endif
+
+/*
+ * Includes that may be required somewhere in the following.
+ */
+
+#if PTEDIT_ON_LINUX
   #include <linux/types.h>
+  #include <linux/version.h>
 #endif
 
 /*
@@ -9,7 +110,7 @@
  * of this module and will be stored in the kernel log.
  */
 
-#ifdef __linux__
+#if PTEDIT_ON_LINUX && PTEDIT_MODULE_BUILD
   #ifdef pr_fmt
     #undef pr_fmt
   #endif
@@ -21,10 +122,12 @@
  * Define the paths for command device.
  */
 
-#ifdef __linux__
+#if PTEDIT_ON_LINUX
   #define PTEDITOR_DEVICE_NAME "pteditor"
   #define PTEDITOR_DEVICE_PATH "/dev/" PTEDITOR_DEVICE_NAME
-#else
+#endif
+
+#if PTEDIT_ON_WINDOWS
   #define PTEDITOR_DEVICE_NAME L"PTEditorLink"
   #define PTEDITOR_DEVICE_PATH L"\\\\.\\" PTEDITOR_DEVICE_NAME
 #endif
@@ -33,7 +136,7 @@
  * Define the IOCTL stuff for the userspace command interface.
  */
 
-#ifdef __linux__
+#ifdef PTEDIT_ON_LINUX
   #define PTEDITOR_IOCTL_MAGIC_NUMBER ((long) 0x3d17)
 
   #define PTEDITOR_IOCTL_CMD_VM_RESOLVE \
@@ -77,11 +180,16 @@
 #endif
 
 /*
- * Description TBD.
+ * Detect, if the current platform supports five levels of page tables.
  */
 
-#define PTEDIT_VALID_MASK_PGD (1<<0)
-#define PTEDIT_VALID_MASK_P4D (1<<1)
-#define PTEDIT_VALID_MASK_PUD (1<<2)
-#define PTEDIT_VALID_MASK_PMD (1<<3)
-#define PTEDIT_VALID_MASK_PTE (1<<4)
+#if PTEDIT_ON_LINUX
+  #define PTEDIT_HAS_P4D  (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0))
+#else
+  /*
+   * NOTE:  Windows may provide equivalent support, but it is not implemented.
+   *        That's left for the reader.
+   */
+
+  #define PTEDIT_HAS_P4D  0
+#endif

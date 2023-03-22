@@ -1,39 +1,54 @@
 #pragma once
 
-#ifdef __linux__
-  #include <linux/types.h>
+#include "config.h"
+
+#if PTEDIT_ON_LINUX
   #include <linux/uaccess.h>
   #include <linux/version.h>
-#else
+#endif
+
+#if PTEDIT_ON_WINDOWS
   #include <stddef.h>
 #endif
 
-#if defined(PTEDIT_MODULE_BUILD) && defined(PTEDIT_TINA_FIXES)
+/*
+#if PTEDIT_MODULE_BUILD && defined(PTEDIT_TINA_FIXES)
   #include <linux/mm.h>
 #endif
+*/
 
-#ifdef __linux__
+/*
+ * Some wrappers for types that may be absent.
+ */
+
+#if PTEDIT_ON_LINUX
   typedef pid_t ptedit_pid_t;
-#else
+#endif
+
+#if PTEDIT_ON_WINDOWS
   typedef size_t ptedit_pid_t;
 #endif
 
-#ifdef PTEDIT_MODULE_BUILD
+#if PTEDIT_HAS_P4D
+  typedef p4d_t ptedit_p4d_t;
+#else
+  typedef size_t ptedit_p4d_t;
+#endif
+
+#if PTEDIT_MODULE_BUILD
   typedef enum {
     PTEDIT_STATUS_ERROR = 0,
     PTEDIT_STATUS_SUCCESS
   } ptedit_status_t;
 #endif
 
-#if defined(PTEDIT_MODULE_BUILD) && \
-    defined(__linux__) && \
-    LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
-  typedef size_t ptedit_p4d_t;
-#elif defined(PTEDIT_MODULE_BUILD) && defined(__linux__)
-  typedef p4d_t ptedit_p4d_t;
-#endif
+#define PTEDIT_VALID_MASK_PGD (1 << 0)
+#define PTEDIT_VALID_MASK_P4D (1 << 1)
+#define PTEDIT_VALID_MASK_PUD (1 << 2)
+#define PTEDIT_VALID_MASK_PMD (1 << 3)
+#define PTEDIT_VALID_MASK_PTE (1 << 4)
 
-#if defined(PTEDIT_MODULE_BUILD) && defined(__linux__)
+#if PTEDIT_MODULE_BUILD
   typedef struct {
     pgd_t *pgd;
     ptedit_p4d_t *p4d;
@@ -87,7 +102,7 @@ typedef struct {
   size_t valid;
 } ptedit_entry_t;
 
-#ifdef __linux__
+#if PTEDIT_ON_LINUX
   /**
    * Structure to read/write physical pages.
    */
