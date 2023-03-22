@@ -15,7 +15,7 @@
 #define TAG_PROGRESS COLOR_YELLOW "[~]" COLOR_RESET " "
 
 
-#include "ptedit_header.h"
+#include "ptedit.h"
 
 
 int main(int argc, char *argv[]) {
@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
       printf(TAG_OK "OK!\n");
   } else {
       printf(TAG_FAIL "Fail!\n");
+      return;
   }
 
   printf(TAG_OK "Reading physical page of address\n");

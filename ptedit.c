@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
-#include "module/pteditor.h"
 #include "ptedit.h"
 #if defined(LINUX)
 #include <sys/ioctl.h>
@@ -52,8 +51,8 @@ ptedit_paging_definition_t ptedit_paging_definition;
 ptedit_fnc ptedit_entry_t ptedit_resolve_kernel(void* address, pid_t pid) {
     ptedit_entry_t vm;
     memset(&vm, 0, sizeof(vm));
-    vm.vaddr = (size_t)address;
-    vm.pid = (size_t)pid;
+    vm.vaddr = address;
+    vm.pid = pid;
 #if defined(LINUX)
     ioctl(ptedit_fd, PTEDITOR_IOCTL_CMD_VM_RESOLVE, (size_t)&vm);
 #else
@@ -130,8 +129,8 @@ static ptedit_entry_t ptedit_resolve_user_ext(void* address, pid_t pid, ptedit_p
 
     ptedit_entry_t resolved;
     memset(&resolved, 0, sizeof(resolved));
-    resolved.vaddr = (size_t)address;
-    resolved.pid = (size_t)pid;
+    resolved.vaddr = address;
+    resolved.pid = pid;
     resolved.valid = 0;
     
     if(!root) return resolved;
@@ -220,8 +219,8 @@ static ptedit_entry_t ptedit_resolve_user_map(void* address, pid_t pid) {
 
 // ---------------------------------------------------------------------------
 ptedit_fnc void ptedit_update_kernel(void* address, pid_t pid, ptedit_entry_t* vm) {
-    vm->vaddr = (size_t)address;
-    vm->pid = (size_t)pid;
+    vm->vaddr = address;
+    vm->pid = pid;
 #if defined(LINUX)
     ioctl(ptedit_fd, PTEDITOR_IOCTL_CMD_VM_UPDATE, (size_t)vm);
 #else 

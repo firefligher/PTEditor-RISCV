@@ -6,6 +6,7 @@
 #define ptedit_fnc
 
 #include <sys/types.h>
+#include "whatweneed.h"
 
 #if defined(WINDOWS)
 typedef size_t pid_t;
