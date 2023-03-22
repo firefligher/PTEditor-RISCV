@@ -37,6 +37,9 @@ static size_t ptedit_entry_size = sizeof(size_t);
 static size_t ptedit_paging_root;
 static unsigned char* ptedit_vmem;
 
+ptedit_fnc ptedit_resolve_t ptedit_resolve;
+ptedit_fnc ptedit_update_t ptedit_update;
+
 typedef struct {
     int has_pgd, has_p4d, has_pud, has_pmd, has_pt;
     int pgd_entries, p4d_entries, pud_entries, pmd_entries, pt_entries;
@@ -380,6 +383,21 @@ ptedit_fnc void ptedit_print_entry_line(size_t entry, int line) {
         PEDIT_PRINT_B(" %d", PTEDIT_B(entry, 5));
         PEDIT_PRINT_B(" %d ", (PTEDIT_B(entry, 4) << 2) | (PTEDIT_B(entry, 3) << 1) | PTEDIT_B(entry, 2));
         PEDIT_PRINT_B("%d", (PTEDIT_B(entry, 1) << 1) | PTEDIT_B(entry, 0));
+        printf("\n");
+    }
+#elif defined (__riscv)
+    if (line == 0 || line == 3) printf("+--------+------------------+---+-+-+-+-+-+-+-+-+\n");
+    if (line == 1) printf("|Reserved|       PFN        |RSW|D|A|G|U|X|W|R|V|\n");
+    if (line == 2) {
+        printf("|                               ");
+        PEDIT_PRINT_B("%d", PTEDIT_B(entry, 7));
+        PEDIT_PRINT_B("%d", PTEDIT_B(entry, 6));
+        PEDIT_PRINT_B("%d", PTEDIT_B(entry, 5));
+        PEDIT_PRINT_B(" %d", PTEDIT_B(entry, 4));
+        PEDIT_PRINT_B(" %d", PTEDIT_B(entry, 3));
+        PEDIT_PRINT_B("%d", PTEDIT_B(entry, 2));
+        PEDIT_PRINT_B("%d", PTEDIT_B(entry, 1));
+        PEDIT_PRINT_B("%d", PTEDIT_B(entry, 0));
         printf("\n");
     }
 #endif

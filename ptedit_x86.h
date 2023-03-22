@@ -1,6 +1,6 @@
 #pragma once
 
- /** Page is present */
+/** Page is present */
 #define PTEDIT_PAGE_BIT_PRESENT 0
 /** Page is writeable */
 #define PTEDIT_PAGE_BIT_RW 1
