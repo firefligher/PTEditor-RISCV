@@ -22,11 +22,11 @@ ptedit_status_t ptedit_page_get(void **dst, unsigned long pfn) {
 ptedit_status_t ptedit_vm_resolve(ptedit_vm_t *dst, void *addr, pid_t pid) {
   struct mm_struct *mm;
 
+  memset(dst, 0, sizeof(ptedit_vm_t));
+
   if (!(mm = internal_acquire_mm(pid))) {
     return PTEDIT_STATUS_ERROR;
   }
-
-  memset(dst, 0, sizeof(ptedit_vm_t));
 
   /* Read PGD (page global directory) entry */
   dst->pgd = pgd_offset(mm, (uintptr_t) addr);
@@ -83,7 +83,7 @@ ptedit_status_t ptedit_vm_resolve(ptedit_vm_t *dst, void *addr, pid_t pid) {
   /* Read PTE map (page table entry) */
   dst->pte = pte_offset_map(dst->pmd, (uintptr_t) addr);
 
-  if (dst->pte == NULL || pmd_large(*(dst->pmd))) {
+  if (pte_none(*(dst->pte)) || pmd_large(*(dst->pmd))) {
     dst->pte = NULL;
     goto error_out;
   }
@@ -114,24 +114,44 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
   }
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PGD) {
-    pr_warn("Updating PGD\n");
+    pr_warn(
+      "Updating PGD (old = %lx, new = %lx)\n",
+      pgd_val(*entry.pgd),
+      pgd_val(*value->pgd)
+    );
+
     set_pgd(entry.pgd, *value->pgd);
   }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_P4D) {
-    pr_warn("Updating P4D\n");
+    pr_warn(
+      "Updating P4D (old = %lx, new = %lx)\n",
+      p4d_val(*entry.p4d),
+      p4d_val(*value->p4d)
+    );
+
     set_p4d(entry.p4d, *value->p4d);
   }
 #endif
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PUD) {
-    pr_warn("Updating PUD\n");
+    pr_warn(
+      "Updating PUD (old = %lx, new = %lx)\n",
+      pud_val(*entry.pud),
+      pud_val(*value->pud)
+    );
+
     set_pud(entry.pud, *value->pud);
   }
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PMD) {
-    pr_warn("Updating PMD\n");
+    pr_warn(
+      "Updating PMD (old = %lx, new = %lx)\n",
+      pmd_val(*entry.pmd),
+      pmd_val(*value->pmd)
+    );
+
     set_pmd(entry.pmd, *value->pmd);
   }
 
