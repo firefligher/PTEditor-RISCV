@@ -1,3 +1,5 @@
+#include <asm/io.h>
+
 #include "../../memory/memory.h"
 #include "../arch.h"
 

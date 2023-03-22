@@ -2,6 +2,7 @@
 #include <linux/printk.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
+#include <asm/io.h>
 
 #include "../arch/arch.h"
 #include "../config.h"
