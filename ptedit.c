@@ -306,6 +306,8 @@ ptedit_fnc size_t ptedit_set_pfn(size_t pte, size_t pfn) {
     pte &= ~(((1ull << 40) - 1) << 12);
 #elif defined(__aarch64__)
     pte &= ~(((1ull << 36) - 1) << 12);
+#elif defined (__riscv)
+    pte &= ~(((1ull << 44) - 1) << 10);
 #endif
     pte |= pfn << 12;
     return pte;
@@ -318,6 +320,8 @@ ptedit_fnc size_t ptedit_get_pfn(size_t pte) {
     return (pte & (((1ull << 40) - 1) << 12)) >> 12;
 #elif defined(__aarch64__)
     return (pte & (((1ull << 36) - 1) << 12)) >> 12;
+#elif defined (__riscv)
+    return (pte >> 10) & ((1ull << 44) - 1);
 #endif
 }
 
