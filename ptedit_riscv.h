@@ -34,7 +34,11 @@
 
 #pragma pack(push, 1)
   typedef struct {
-    size_t valid : 1;
+    union {
+      size_t valid : 1;
+      size_t present : 1;
+    };
+
     size_t readable : 1;
     size_t writable : 1;
     size_t executable : 1;
@@ -44,10 +48,16 @@
     size_t dirty : 1;
     size_t rsw : 2;
 
-    size_t ppn_0 : 9;
-    size_t ppn_1 : 9;
-    size_t ppn_2 : 9;
-    size_t ppn_3 : 17;
+    union {
+      struct {
+        size_t ppn_0 : 9;
+        size_t ppn_1 : 9;
+        size_t ppn_2 : 9;
+        size_t ppn_3 : 17;
+      };
+
+      size_t pfn : 44;
+    };
 
     size_t reserved : 10;
   } ptedit_pte_sv48_t;
