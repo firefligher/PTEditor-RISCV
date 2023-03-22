@@ -137,7 +137,12 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
   }
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PTE) {
-    pr_warn("Updating PTE\n");
+    pr_warn(
+      "Updating PTE (old = %lx, new = %lx)\n",
+      pte_val(*entry.pte),
+      pte_val(*value->pte)
+    );
+
     set_pte(entry.pte, *value->pte);
   }
 
