@@ -389,8 +389,9 @@ ptedit_fnc void ptedit_print_entry_line(size_t entry, int line) {
     if (line == 0 || line == 3) printf("+--------+------------------+---+-+-+-+-+-+-+-+-+\n");
     if (line == 1) printf("|Reserved|       PFN        |RSW|D|A|G|U|X|W|R|V|\n");
     if (line == 2) {
-        printf("|                            ");
-        printf(" %16zx |", entry.pfn);
+        printf("|  ");
+        printf(" %4zd |", entry >> 54);
+        printf(" %16zx |", (entry >> 10) & ((1ull << 44) - 1));
         PEDIT_PRINT_B("  %d", (PTEDIT_B(entry, 9) << 1) | PTEDIT_B(entry, 8));
         PEDIT_PRINT_B("%d", PTEDIT_B(entry, 7));
         PEDIT_PRINT_B("%d", PTEDIT_B(entry, 6));
