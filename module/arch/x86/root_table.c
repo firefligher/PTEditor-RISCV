@@ -1,3 +1,4 @@
+#include <linux/mm.h>
 #include "../../memory/memory.h"
 #include "../arch.h"
 

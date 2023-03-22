@@ -1,6 +1,6 @@
 #pragma once
 
-/*#include "../shared/shared.h"*/
+#include "../types.h"
 
 /*
  * Some architectures require shims to fill some gaps in the Linux Kernel API.

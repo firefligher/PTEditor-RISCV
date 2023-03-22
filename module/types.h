@@ -12,10 +12,13 @@
 #endif
 
 /*
-#if PTEDIT_MODULE_BUILD && defined(PTEDIT_TINA_FIXES)
+ * The Tina kernel needs the following include for different page table level
+ * types.
+ */
+
+#if PTEDIT_TINA_BUILD
   #include <linux/mm.h>
 #endif
-*/
 
 /*
  * Some wrappers for types that may be absent.

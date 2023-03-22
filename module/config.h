@@ -31,7 +31,7 @@
 
 #ifdef __linux__
   #define PTEDIT_CURRENT_PLATFORM PTEDIT_PLATFORM_LINUX
-#endif 
+#endif
 
 #ifdef _WIN32
   #ifdef PTEDIT_CURRENT_PLATFORM
@@ -39,7 +39,9 @@
   #endif
 
   #define PTEDIT_CURRENT_PLATFORM PTEDIT_PLATFORM_WINDOWS
-#else
+#endif
+
+#ifndef PTEDIT_CURRENT_PLATFORM
   #error Unsupport platform or identification failed.
 #endif
 
@@ -82,6 +84,10 @@
   #endif
 
   #define PTEDIT_CURRENT_ARCH PTEDIT_ARCH_RISCV
+#endif
+
+#ifndef PTEDIT_CURRENT_ARCH
+  #error Unsupport architecture or identification failed.
 #endif
 
 #define PTEDIT_ON_ARM   (PTEDIT_CURRENT_ARCH == PTEDIT_ARCH_ARM)
