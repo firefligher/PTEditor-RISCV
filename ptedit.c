@@ -304,12 +304,14 @@ ptedit_fnc void* ptedit_pmap(size_t physical, size_t length) {
 ptedit_fnc size_t ptedit_set_pfn(size_t pte, size_t pfn) {
 #if defined(__i386__) || defined(__x86_64__) || defined(_WIN64)
     pte &= ~(((1ull << 40) - 1) << 12);
+    pte |= pfn << 12;
 #elif defined(__aarch64__)
     pte &= ~(((1ull << 36) - 1) << 12);
+    pte |= pfn << 12;
 #elif defined (__riscv)
     pte &= ~(((1ull << 44) - 1) << 10);
+    pte |= pfn << 10;
 #endif
-    pte |= pfn << 12;
     return pte;
 }
 
