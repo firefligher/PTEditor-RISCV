@@ -5,7 +5,6 @@
 #include <asm/io.h>
 
 #include "../arch/arch.h"
-#include "../config.h"
 #include "../shared/shared.h"
 #include "internal.h"
 #include "memory.h"

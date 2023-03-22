@@ -2,12 +2,10 @@
 
 #include "config.h"
 
-#if PTEDIT_ON_LINUX
+#if PTEDIT_MODULE_BUILD
   #include <linux/uaccess.h>
   #include <linux/version.h>
-#endif
-
-#if PTEDIT_ON_WINDOWS
+#else
   #include <stddef.h>
 #endif
 
@@ -32,12 +30,6 @@
   typedef size_t ptedit_pid_t;
 #endif
 
-#if PTEDIT_HAS_P4D
-  typedef p4d_t ptedit_p4d_t;
-#else
-  typedef size_t ptedit_p4d_t;
-#endif
-
 #if PTEDIT_MODULE_BUILD
   typedef enum {
     PTEDIT_STATUS_ERROR = 0,
@@ -50,6 +42,12 @@
 #define PTEDIT_VALID_MASK_PUD (1 << 2)
 #define PTEDIT_VALID_MASK_PMD (1 << 3)
 #define PTEDIT_VALID_MASK_PTE (1 << 4)
+
+#if PTEDIT_MODULE_BUILD && PTEDIT_HAS_P4D
+  typedef p4d_t ptedit_p4d_t;
+#elif PTEDIT_MODULE_BUILD
+  typedef size_t ptedit_p4d_t;
+#endif
 
 #if PTEDIT_MODULE_BUILD
   typedef struct {

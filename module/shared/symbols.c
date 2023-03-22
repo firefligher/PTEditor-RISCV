@@ -5,7 +5,6 @@
 #include <linux/slab.h>
 
 #include "../arch/arch.h"
-#include "../config.h"
 #include "shared.h"
 
 #define PATH_KALLSYMS_FILE        "/proc/kallsyms"

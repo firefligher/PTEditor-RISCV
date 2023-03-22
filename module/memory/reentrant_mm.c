@@ -12,7 +12,6 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 
-#include "../config.h"
 #include "internal.h"
 #include "memory.h"
 

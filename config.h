@@ -189,7 +189,7 @@
  * Detect, if the current platform supports five levels of page tables.
  */
 
-#if PTEDIT_ON_LINUX
+#if PTEDIT_MODULE_BUILD
   #define PTEDIT_HAS_P4D  (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0))
 #else
   /*

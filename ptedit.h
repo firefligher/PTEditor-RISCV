@@ -3,6 +3,8 @@
 #pragma once
 #define ptedit_fnc
 
+#include "types.h"
+
 #if PTEDIT_ON_LINUX
   #include <sys/types.h>
 #endif

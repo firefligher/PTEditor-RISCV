@@ -2,7 +2,6 @@
 #include <linux/printk.h>
 #include <linux/sched.h>
 
-#include "../../config.h"
 #include "../../memory/memory.h"
 #include "../arch.h"
 #include "symbols.h"

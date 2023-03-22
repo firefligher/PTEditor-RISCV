@@ -3,6 +3,8 @@
 #include <fcntl.h>
 #include <string.h>
 
+#include "ptedit.h"
+
 #if PTEDIT_ON_LINUX
   #include <sys/ioctl.h>
   #include <unistd.h>
@@ -97,7 +99,7 @@ static inline size_t ptedit_phys_read_pread(size_t address) {
   size_t val = 0;
 
 #if PTEDIT_ON_LINUX
-  pread(ptedit_umem, &val, sizeof(size_t), address)
+  pread(ptedit_umem, &val, sizeof(size_t), address);
 #elif PTEDIT_ON_WINDOWS
   ULONG returnLength;
 
@@ -121,7 +123,7 @@ static inline size_t ptedit_phys_read_pread(size_t address) {
 // ---------------------------------------------------------------------------
 static inline void ptedit_phys_write_pwrite(size_t address, size_t value) {
 #if PTEDIT_ON_LINUX
-  pwrite(ptedit_umem, &value, sizeof(size_t), address)
+  pwrite(ptedit_umem, &value, sizeof(size_t), address);
 #elif PTEDIT_ON_WINDOWS
   ULONG returnLength;
   size_t info[2];
@@ -180,7 +182,7 @@ static ptedit_entry_t ptedit_resolve_user_ext(
   resolved.vaddr = address;
   resolved.pid = pid;
   resolved.valid = 0;
-    
+
   if(!root) return resolved;
 
   size_t pgd_entry, p4d_entry, pud_entry, pmd_entry, pt_entry;

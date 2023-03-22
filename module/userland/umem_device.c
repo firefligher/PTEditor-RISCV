@@ -1,5 +1,4 @@
 #include <linux/proc_fs.h>
-#include "../config.h"
 #include "../shared/shared.h"
 #include "userland.h"
 

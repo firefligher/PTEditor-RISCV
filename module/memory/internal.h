@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../types.h"
+#include "../../types.h"
 
 enum internal_release_mm_status {
     INTERNAL_RELEASE_FAILED = 0,

@@ -2,8 +2,6 @@
 
 #include "../arch/arch.h"
 #include "../memory/memory.h"
-#include "../types.h"
-
 #include "command.h"
 #include "internal.h"
 

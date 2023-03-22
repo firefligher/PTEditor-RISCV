@@ -5,7 +5,7 @@
 #include <linux/version.h>
 #include <asm/pgtable.h>
 
-#include "../types.h"
+#include "../../types.h"
 
 extern void (*ptedit_shared_invalidate_tlb)(void *);
 extern unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);

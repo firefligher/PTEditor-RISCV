@@ -1,6 +1,5 @@
 #include <linux/printk.h>
 
-#include "../../config.h"
 #include "../../shared/shared.h"
 #include "../arch.h"
 #include "symbols.h"

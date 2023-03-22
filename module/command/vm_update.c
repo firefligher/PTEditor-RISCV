@@ -1,9 +1,7 @@
 #include <linux/version.h>
 
 #include "../arch/arch.h"
-#include "../config.h"
 #include "../memory/memory.h"
-
 #include "command.h"
 #include "internal.h"
 

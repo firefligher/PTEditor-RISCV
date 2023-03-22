@@ -1,4 +1,3 @@
-#include "../../config.h"
 #include "../arch.h"
 
 int ptedit_arch_install_devmem_hook(void) {

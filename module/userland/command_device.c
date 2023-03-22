@@ -3,7 +3,6 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 
-#include "../config.h"
 #include "userland.h"
 
 /* ------------------- COMMAND-ENTRY-RELATED DEFINITIONS ------------------- */

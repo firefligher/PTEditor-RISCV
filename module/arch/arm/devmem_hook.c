@@ -1,7 +1,6 @@
 #include <linux/kprobes.h>
 #include <linux/printk.h>
 
-#include "../../config.h"
 #include "../arch.h"
 
 #define SYMBOL_DEVMEM_IS_ALLOWED  "devmem_is_allowed"
