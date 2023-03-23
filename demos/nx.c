@@ -61,6 +61,8 @@ int main(int argc, char *argv[]) {
     sleep(1);
 
     /* verify that child's copy is non-executable */
+
+#if PTEDIT_ON_X86 || PTEDIT_ON_ARM
     printf(TAG_PROGRESS "Child entry should have NX bit set\n");
 
     if (ptedit_pte_get_bit(nx_function_aligned, pid, NX_BIT)) {
@@ -68,8 +70,19 @@ int main(int argc, char *argv[]) {
     } else {
       printf(TAG_FAIL "Child mapping is executable\n");
     }
+#elif PTEDIT_ON_RISCV
+    printf(TAG_PROGRESS "Child entry should have executable bit cleared\n");
+
+    if (!ptedit_pte_get_bit(nx_function_aligned, pid, PTEDIT_PAGE_BIT_EXECUTABLE)) {
+      printf(TAG_OK "Child mapping is non-executable\n");
+    } else {
+      printf(TAG_FAIL "Child mapping is executable\n");
+    }
+#endif
 
     /* clear the non-executable (NX) bit and update child's page-table entry */
+
+#if PTEDIT_ON_X86 || PTEDIT_ON_ARM
     printf(TAG_PROGRESS "Clearing child's NX bit...\n");
     ptedit_pte_clear_bit(nx_function_aligned, pid, NX_BIT);
 
@@ -89,6 +102,27 @@ int main(int argc, char *argv[]) {
     } else {
       printf(TAG_FAIL "Own mapping is executable\n");
     }
+#elif PTEDIT_ON_RISCV
+    printf(TAG_PROGRESS "Setting child's executable bit...\n");
+    ptedit_pte_set_bit(nx_function_aligned, pid, PTEDIT_PAGE_BIT_EXECUTABLE);
+
+    printf(TAG_PROGRESS "Check executable bit of child\n");
+
+    if (!ptedit_pte_get_bit(nx_function_aligned, pid, PTEDIT_PAGE_BIT_EXECUTABLE)) {
+      printf(TAG_FAIL "Child mapping is still non-executable\n");
+    } else {
+      printf(TAG_OK "Child mapping is executable\n");
+    }
+
+    /* verify that own page-tabel entry is still non-executable */
+    printf(TAG_OK "Own entry should have executable bit cleared\n");
+
+    if (!ptedit_pte_get_bit(nx_function_aligned, 0, PTEDIT_PAGE_BIT_EXECUTABLE)) {
+      printf(TAG_OK "Own mapping is non-executable\n");
+    } else {
+      printf(TAG_FAIL "Own mapping is executable\n");
+    }
+#endif
 
     ptedit_cleanup();
 

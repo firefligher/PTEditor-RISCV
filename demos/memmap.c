@@ -7,6 +7,8 @@ int is_present(size_t entry) {
   return entry & (1ull << PTEDIT_PAGE_BIT_PRESENT);
 #elif defined(__aarch64__)
   return (entry & 3) == 3;
+#elif defined(__riscv)
+  return entry & (1ull << PTEDIT_PAGE_BIT_VALID);
 #endif
 }
 
@@ -15,12 +17,16 @@ int is_normal_page(size_t entry) {
   return !(entry & (1ull << PTEDIT_PAGE_BIT_PSE));
 #elif defined(__aarch64__)
   return 1;
+#elif defined(__riscv)
+  return 1;
 #endif
 }
 
 #if defined(__i386__) || defined(__x86_64__)
 #define FIRST_LEVEL_ENTRIES 256 // only 256, because upper half is kernel
 #elif defined(__aarch64__)
+#define FIRST_LEVEL_ENTRIES 512
+#elif defined(__riscv)
 #define FIRST_LEVEL_ENTRIES 512
 #endif
 
@@ -74,6 +80,8 @@ int main(int argc, char *argv[]) {
       dump(dump_entry, pdpt_entry, "PDPT");
 #elif defined(__aarch64__)
       size_t pdpt_entry = pml4_entry;
+#elif defined(__riscv)
+      size_t pdpt_entry = pml4_entry;
 #endif
 
       /* Iterate through PD entries */
@@ -96,6 +104,8 @@ int main(int argc, char *argv[]) {
 #if defined(__i386__) || defined(__x86_64__)
             printf("            -> %zx\n", ((size_t)pti << 12) | ((size_t)pdi << 21) | ((size_t)pdpti << 30) | ((size_t)pml4i << 39));
 #elif defined(__aarch64__)
+            printf("            -> %zx\n", ((size_t)pti << 12) | ((size_t)pdi << 21) | ((size_t)pml4i << 30));
+#elif defined(__riscv)
             printf("            -> %zx\n", ((size_t)pti << 12) | ((size_t)pdi << 21) | ((size_t)pml4i << 30));
 #endif
             mem_usage += 4096;
