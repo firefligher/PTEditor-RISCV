@@ -1,18 +1,18 @@
-all: ptedit_header.h module example header test
+all: ptedit_header.h module example test
 
 deb:
 	dpkg-buildpackage
 
 demos: ptedit_header.h
-	$(MAKE) -C $@
+	cd $@ && make
 
 module:
-	$(MAKE) -C $@
+	cd $@ && make
 
 test: ptedit_header.h
-	$(MAKE) -C $@
+	cd $@ && make
 
-.PHONY: all module demos tests
+.PHONY: all module demos test
 
 ptedit_header.h: config.h ptedit_arm.h ptedit_riscv.h ptedit_x86.h ptedit.c \
 ptedit.h types.h
