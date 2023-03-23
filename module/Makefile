@@ -13,8 +13,8 @@ pteditor-objs := $(pteditor-objs:$(PWD)/%=%)
 ccflags-y += -Wno-unused-result
 ccflags-y += -DPTEDIT_MODULE_BUILD=1
 
-ifdef PTEDIT_TINA_BUILD
-	ccflags-y += -DPTEDIT_TINA_BUILD=1
+ifdef PTEDIT_T_HEAD_C9XX_BUILD
+	ccflags-y += -DPTEDIT_TINA_BUILD=1 -DPTEDIT_T_HEAD_C9XX_BUILD=1
 endif
 
 all:
