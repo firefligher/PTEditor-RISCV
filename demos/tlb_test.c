@@ -37,7 +37,18 @@ uint64_t rdtsc() {
 #endif
 }
 
+#if defined(__i386__) || defined(__x86_64__)
 void maccess(void *p) { asm volatile("movq (%0), %%rax\n" : : "c"(p) : "rax"); }
+#elif defined(__aarch64__)
+#error Not implemented.
+#elif defined(__riscv)
+void maccess(void *p) {
+  uint64_t value;
+
+  asm volatile("ld %0, 0(%1)\n\t" : "=r"(value) : "r"(p));
+  asm volatile("fence" ::: "memory");
+}
+#endif
 
 int main(int argc, char *argv[]) {
     unsigned long target = 'X';
