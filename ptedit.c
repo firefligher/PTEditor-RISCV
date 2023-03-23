@@ -473,10 +473,10 @@ ptedit_fnc void ptedit_print_entry_line(size_t entry, int line) {
   if (line == 1) printf("|SO|C|B|SH| ? |       PFN        |RSW|D|A|G|U|X|W|R|V|\n");
   if (line == 2) {
     printf("|");
-    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 63));
+    PEDIT_PRINT_B(" %d", PTEDIT_B(entry, 63));
     PEDIT_PRINT_B("%d", PTEDIT_B(entry, 62));
     PEDIT_PRINT_B("%d", PTEDIT_B(entry, 61));
-    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 60));
+    PEDIT_PRINT_B(" %d", PTEDIT_B(entry, 60));
     printf("%3zd|", (entry >> 54) & ((1ull << 8) - 1));
     printf(" %16zx |", (entry >> 10) & ((1ull << 44) - 1));
     PEDIT_PRINT_B("  %d", (PTEDIT_B(entry, 9) << 1) | PTEDIT_B(entry, 8));
