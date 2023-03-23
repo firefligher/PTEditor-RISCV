@@ -98,7 +98,7 @@ uint64_t rdtsc() {
   asm volatile("fence");
   asm volatile("rdcycle %0" : "=r"(cycles));
   asm volatile("fence");
-  return 0;
+  return cycles;
 }
 
 void flush(void *p) {
@@ -106,14 +106,14 @@ void flush(void *p) {
    * As far as I can see, we cannot do much more but fence data access and
    * instruction cache. Real cache flushing is probably also chip-specific.
    */
-
   asm volatile("fence" ::: "memory");
   asm volatile("fence.i" ::: "memory");
 }
 
 void maccess(void *p) {
-  volatile uint32_t value;
-  asm volatile("ld %0, %1\n\t" : "=r"(value) : "r"(p));
+  uint64_t value;
+
+  asm volatile("ld %0, 0(%1)\n\t" : "=r"(value) : "r"(p));
   asm volatile("fence" ::: "memory");
 }
 
