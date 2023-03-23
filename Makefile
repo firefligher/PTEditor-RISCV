@@ -25,4 +25,4 @@ clean:
 	$(MAKE) -C module clean
 	$(MAKE) -C demos clean
 	$(MAKE) -C test clean
-	rm -f example *.o
+	rm -f example *.o ptedit_heaer.h
