@@ -856,12 +856,7 @@ ptedit_fnc int ptedit_switch_tlb_invalidation(int implementation) {
 ptedit_fnc size_t ptedit_get_mts() {
   size_t mt = 0;
 
-#if PTEDIT_ON_LINUX && PTEDIT_T_HEAD_C9XX_BUILD
-  return (1ull << PTEDIT_MT_T_HEAD_C9XX_SHAREABLE)
-    | (1ull << PTEDIT_MT_T_HEAD_C9XX_BUFFERABLE)
-    | (1ull << PTEDIT_MT_T_HEAD_C9XX_CACHEABLE)
-    | (1ull << PTEDIT_MT_T_HEAD_C9XX_STRONG_ORDER);
-#elif PTEDIT_ON_LINUX
+#if PTEDIT_ON_LINUX
   ioctl(ptedit_fd, PTEDITOR_IOCTL_CMD_GET_PAT, (size_t)&mt);
 #elif PTEDIT_ON_WINDOWS
   DWORD returnLength;
@@ -876,14 +871,14 @@ ptedit_fnc size_t ptedit_get_mts() {
 
 // ---------------------------------------------------------------------------
 ptedit_fnc char ptedit_get_mt(unsigned char mt) {
-  size_t mts = ptedit_get_mts();
-
 #if PTEDIT_ON_X86
+  size_t mts = ptedit_get_mts();
   return ((mts >> (mt * 8)) & 7);
 #elif PTEDIT_ON_ARM
+  size_t mts = ptedit_get_mts();
   return ((mts >> (mt * 8)) & 0xff);
 #elif PTEDIT_T_HEAD_C9XX_BUILD
-  return mts & (1ull << mt);
+  return (char) mt;
 #else
   ptedit_no_support();
   return 0;
@@ -941,6 +936,7 @@ const char* ptedit_mt_to_string(unsigned char mt) {
   return mts;
 #elif PTEDIT_T_HEAD_C9XX_BUILD
   const char* mts[] = { "SH", "B", "C", "SO" };
+  mt &= PTEDIT_T_HEAD_C9XX_MASK;
   if (mt >= 60 && mt < 64) return mts[mt - 60];
   return NULL;
 #else
@@ -1042,7 +1038,11 @@ ptedit_fnc size_t ptedit_apply_mt(size_t entry, unsigned char mt) {
   entry &= ~0x1c;
   entry |= (mt & 7) << 2;
 #elif PTEDIT_T_HEAD_C9XX_BUILD
-  entry |= (1ull << mt);
+  if (mt & PTEDIT_T_HEAD_C9XX_SET) {
+    entry |= (1ull << (mt & PTEDIT_T_HEAD_C9XX_MASK));
+  } else {
+    entry &= ~(1ull << (mt & PTEDIT_T_HEAD_C9XX_MASK));
+  }
 #else
   ptedit_no_support();
 #endif
@@ -1062,7 +1062,11 @@ size_t ptedit_apply_mt_huge(size_t entry, unsigned char mt) {
   entry &= ~0x1c;
   entry |= (mt & 7) << 2;
 #elif PTEDIT_T_HEAD_C9XX_BUILD
-  entry |= (1ull << mt);
+  if (mt & PTEDIT_T_HEAD_C9XX_SET) {
+    entry |= (1ull << (mt & PTEDIT_T_HEAD_C9XX_MASK));
+  } else {
+    entry &= ~(1ull << (mt & PTEDIT_T_HEAD_C9XX_MASK));
+  }
 #else
   ptedit_no_support();
 #endif
@@ -1077,7 +1081,11 @@ ptedit_fnc unsigned char ptedit_extract_mt(size_t entry) {
 #elif PTEDIT_ON_ARM
   return (entry >> 2) & 7;
 #elif PTEDIT_T_HEAD_C9XX_BUILD
-  return (entry >> 60) & 0xF;
+  if (entry & (1ull << PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE)) {
+    return PTEDIT_MT_WB;
+  } else {
+    return PTEDIT_MT_UC;
+  }
 #else
   ptedit_no_support();
   return 0;
@@ -1091,7 +1099,11 @@ unsigned char ptedit_extract_mt_huge(size_t entry) {
 #elif PTEDIT_ON_ARM
   return (entry >> 2) & 7;
 #elif PTEDIT_T_HEAD_C9XX_BUILD
-  return (entry >> 60) & 0xF;
+  if (entry & (1ull << PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE)) {
+    return PTEDIT_MT_WB;
+  } else {
+    return PTEDIT_MT_UC;
+  }
 #else
   ptedit_no_support();
   return 0;
