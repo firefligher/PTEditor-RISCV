@@ -28,6 +28,11 @@ uint64_t rdtsc() {
   struct timespec t1;
   clock_gettime(CLOCK_MONOTONIC, &t1);
   return t1.tv_sec * 1000 * 1000 * 1000ULL + t1.tv_nsec;
+#elif defined(__riscv)
+  uint64_t cycles;
+  asm volatile("fence");
+  asm volatile("rdcycle %0" : "=r"(cycles));
+  asm volatile("fence");
 #endif
 }
 
