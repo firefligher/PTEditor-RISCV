@@ -11,6 +11,11 @@
 #define PTEDIT_PAGE_BIT_ACCESSED              6
 #define PTEDIT_PAGE_BIT_DIRTY                 7
 
+#define PTEDIT_PAGE_BIT_T_HEAD_C9XX_SHAREABLE     60
+#define PTEDIT_PAGE_BIT_T_HEAD_C9XX_BUFFERABLE    61
+#define PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE     62
+#define PTEDIT_PAGE_BIT_T_HEAD_C9XX_STRONG_ORDER  63
+
 #define PTEDIT_PAGE_PRESENT 1
 
 #pragma pack(push, 1)
@@ -52,8 +57,3 @@ typedef ptedit_pte_sv39_t ptedit_p4d_t;
 typedef ptedit_pte_sv39_t ptedit_pud_t;
 typedef ptedit_pte_sv39_t ptedit_pmd_t;
 typedef ptedit_pte_sv39_t ptedit_pte_t;
-
-#define PTEDIT_T_HEAD_C9XX_MT_BIT_SHAREABLE     60
-#define PTEDIT_T_HEAD_C9XX_MT_BIT_BUFFERABLE    61
-#define PTEDIT_T_HEAD_C9XX_MT_BIT_CACHEABLE     62
-#define PTEDIT_T_HEAD_C9XX_MT_BIT_STRONG_ORDER  63
