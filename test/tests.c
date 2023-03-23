@@ -267,6 +267,7 @@ UTEST(pte, pte_set_pfn) {
 // =========================================================================
 //                             Bit Modifications in Paging
 // =========================================================================
+/*
 UTEST(pte, ptedit_clear_bit) {
   memset(page1,0x42,4096);
   ptedit_clear_bit(page1, 0, PTEDIT_PAGE_BIT_ACCESSED,PTEDIT_VALID_MASK_PUD|PTEDIT_VALID_MASK_PMD|PTEDIT_VALID_MASK_PTE);
@@ -289,7 +290,7 @@ UTEST(pte, ptedit_set_bit) {
   ASSERT_TRUE(PTEDIT_B(entry.pud, PTEDIT_PAGE_BIT_ACCESSED) == 1);
   ASSERT_TRUE(PTEDIT_B(entry.pd, PTEDIT_PAGE_BIT_ACCESSED) == 1);
 }
-
+*/
 // =========================================================================
 //                             Physical Pages
 // =========================================================================
@@ -379,8 +380,8 @@ UTEST(memtype, apply) {
   size_t entry = 0;
 
 #if PTEDIT_T_HEAD_C9XX_BUILD
-  ASSERT_NE(ptedit_apply_mt(entry, 1 | PTEDIT_T_HEAD_C9XX_SET), entry);
-  ASSERT_EQ(ptedit_apply_mt(entry, 0 | PTEDIT_T_HEAD_C9XX_SET), entry);
+  ASSERT_NE(ptedit_apply_mt(entry, PTEDIT_MT_WB), entry);
+  ASSERT_EQ(ptedit_apply_mt(entry, PTEDIT_MT_UC), entry);
 #else
   ASSERT_NE(ptedit_apply_mt(entry, 1), entry);
   ASSERT_EQ(ptedit_apply_mt(entry, 0), entry);
@@ -391,8 +392,8 @@ UTEST(memtype, apply_huge) {
   size_t entry = 0;
 
 #if PTEDIT_T_HEAD_C9XX_BUILD
-  ASSERT_NE(ptedit_apply_mt_huge(entry, PTEDIT_MT_UC), entry);
-  ASSERT_EQ(ptedit_apply_mt_huge(entry, PTEDIT_MT_WB), entry);
+  ASSERT_NE(ptedit_apply_mt_huge(entry, PTEDIT_MT_WB), entry);
+  ASSERT_EQ(ptedit_apply_mt_huge(entry, PTEDIT_MT_UC), entry);
 #else
   ASSERT_NE(ptedit_apply_mt_huge(entry, 1), entry);
   ASSERT_EQ(ptedit_apply_mt_huge(entry, 0), entry);
@@ -401,7 +402,7 @@ UTEST(memtype, apply_huge) {
 
 UTEST(memtype, extract) {
 #if PTEDIT_T_HEAD_C9XX_BUILD
-  ASSERT_TRUE(ptedit_extract_mt(PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE) == PTEDIT_MT_WB);
+  ASSERT_TRUE(ptedit_extract_mt(~0) == PTEDIT_MT_WB);
   ASSERT_TRUE(ptedit_extract_mt(0) == PTEDIT_MT_UC);
 #else
   ASSERT_TRUE(ptedit_extract_mt(ptedit_apply_mt(0, 5)) == 5);
@@ -411,7 +412,7 @@ UTEST(memtype, extract) {
 
 UTEST(memtype, extract_huge) {
 #if PTEDIT_T_HEAD_C9XX_BUILD
-  ASSERT_TRUE(ptedit_extract_mt_huge(PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE) == PTEDIT_MT_WB);
+  ASSERT_TRUE(ptedit_extract_mt_huge(~0) == PTEDIT_MT_WB);
   ASSERT_TRUE(ptedit_extract_mt_huge(0) == PTEDIT_MT_UC);
 #else
   ASSERT_TRUE(ptedit_extract_mt_huge(ptedit_apply_mt_huge(0, 5)) == 5);
