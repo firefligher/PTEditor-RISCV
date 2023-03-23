@@ -33,6 +33,7 @@ uint64_t rdtsc() {
   asm volatile("fence");
   asm volatile("rdcycle %0" : "=r"(cycles));
   asm volatile("fence");
+  return cycles;
 #endif
 }
 
