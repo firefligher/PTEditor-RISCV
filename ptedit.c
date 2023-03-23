@@ -1010,7 +1010,9 @@ ptedit_fnc unsigned char ptedit_find_mt(unsigned char type) {
 
 // ---------------------------------------------------------------------------
 int ptedit_find_first_mt(unsigned char type) {
-#if PTEDIT_ON_LINUX
+#if PTEDIT_T_HEAD_C9XX_BUILD
+  return ptedit_find_mt(type);
+#elif PTEDIT_ON_LINUX
   return __builtin_ffs(ptedit_find_mt(type)) - 1;
 #elif PTEDIT_ON_WINDOWS
   DWORD index = 0;
