@@ -1,5 +1,7 @@
 #pragma once
 
+#include "config.h"
+
 #define PTEDIT_PAGE_BIT_VALID                 0
 #define PTEDIT_PAGE_BIT_READABLE              1
 #define PTEDIT_PAGE_BIT_WRITABLE              2
@@ -50,3 +52,8 @@ typedef ptedit_pte_sv39_t ptedit_p4d_t;
 typedef ptedit_pte_sv39_t ptedit_pud_t;
 typedef ptedit_pte_sv39_t ptedit_pmd_t;
 typedef ptedit_pte_sv39_t ptedit_pte_t;
+
+#define PTEDIT_T_HEAD_C9XX_MT_BIT_SHAREABLE     60
+#define PTEDIT_T_HEAD_C9XX_MT_BIT_BUFFERABLE    61
+#define PTEDIT_T_HEAD_C9XX_MT_BIT_CACHEABLE     62
+#define PTEDIT_T_HEAD_C9XX_MT_BIT_STRONG_ORDER  63

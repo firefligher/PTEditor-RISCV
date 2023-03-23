@@ -4,6 +4,7 @@ KProbes:        https://www.kernel.org/doc/Documentation/kprobes.txt
 RISC-V flags:   https://github.com/riscv-non-isa/riscv-c-api-doc/blob/master/riscv-c-api.md
 Linux:          https://www.kernel.org/doc/html/latest/riscv/vm-layout.html
 More:           https://elixir.bootlin.com/linux/latest/source/arch/riscv/mm/ptdump.c
+Custom PBMT:    https://lpc.events/event/11/contributions/1128/attachments/846/1757/RISC-V%20Bof.pdf
 
 Notes
 -----

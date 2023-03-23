@@ -23,6 +23,17 @@
 #endif
 
 /*
+ * Ensure that PTEDIT_T_HEAD_C9XX_BUILD is defined.
+ *
+ * If PTEDIT_T_HEAD_C9XX_BUILD does not resolve to zero, we build either the
+ * Kernel module or the userland library for a T-HEAD C9xx chip (RISC-V).
+ */
+
+#ifndef PTEDIT_T_HEAD_C9XX_BUILD
+  #define PTEDIT_T_HEAD_C9XX_BUILD 0
+#endif
+
+/*
  * Platform-specific macros.
  */
 
@@ -56,6 +67,15 @@
 
 #if PTEDIT_MODULE_BUILD && !PTEDIT_ON_LINUX
   #error Invalid configuration! Not on Linux, but we do a module build!
+#endif
+
+/*
+ * Sanity check:  We only support the T-Head C9xx on Linux.
+ */
+
+#if PTEDIT_T_HEAD_C9XX_BUILD && !PTEDIT_ON_LINUX
+  #error Invalid configuration! Building for T-Head C9xx, but not on Linux \
+apparently!
 #endif
 
 /*

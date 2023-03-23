@@ -468,6 +468,28 @@ ptedit_fnc void ptedit_print_entry_line(size_t entry, int line) {
     PEDIT_PRINT_B("%d", (PTEDIT_B(entry, 1) << 1) | PTEDIT_B(entry, 0));
     printf("\n");
   }
+#elif PTEDIT_ON_RISCV && PTEDIT_T_HEAD_C9XX_BUILD
+  if (line == 0 || line == 3) printf("+--+-+-+--+---+------------------+---+-+-+-+-+-+-+-+-+\n");
+  if (line == 1) printf("|SO|C|B|SH| ? |       PFN        |RSW|D|A|G|U|X|W|R|V|\n");
+  if (line == 2) {
+    printf("|");
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 63));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 62));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 61));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 60));
+    printf("%3zd|", (entry >> 54) & ((1ull << 8) - 1));
+    printf(" %16zx |", (entry >> 10) & ((1ull << 44) - 1));
+    PEDIT_PRINT_B("  %d", (PTEDIT_B(entry, 9) << 1) | PTEDIT_B(entry, 8));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 7));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 6));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 5));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 4));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 3));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 2));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 1));
+    PEDIT_PRINT_B("%d", PTEDIT_B(entry, 0));
+    printf("\n");
+  }
 #elif PTEDIT_ON_RISCV
   if (line == 0 || line == 3) printf("+--------+------------------+---+-+-+-+-+-+-+-+-+\n");
   if (line == 1) printf("|Reserved|       PFN        |RSW|D|A|G|U|X|W|R|V|\n");

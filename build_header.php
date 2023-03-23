@@ -12,6 +12,13 @@ function process_file(&$dst, $work_dir, $file_path) {
     return -1;
   }
 
+  // Remove any #pragma once
+
+  $dst = preg_replace("/#pragma\s+once/", "", $content);
+
+  // Resolve includes that use quotation marks as path delimiters (aka the
+  // local ones).
+
   $error = 0;
   $dst = preg_replace_callback(
     "/#include \"(.*?)\"/",
@@ -19,8 +26,17 @@ function process_file(&$dst, $work_dir, $file_path) {
       $error += process_file($content, $real_file_dir, $matches[1]);
       return $content;
     },
-    $content
+    $dst
   );
+
+  // Add some protection to avoid double definitions - #pragma once does not
+  // work, if we copy everything to one file...
+
+  $fenceId = "_THE_".md5($real_file_path)."_FENCE_";
+  $dst =  "#ifndef $fenceId".PHP_EOL.
+          "#define $fenceId".PHP_EOL.
+          $dst.PHP_EOL.
+          "#endif".PHP_EOL;
 
   return $error ? -1 : 0;
 }
