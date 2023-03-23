@@ -357,6 +357,7 @@ UTEST(paging, correct_root) {
 //                               Memory Types
 // =========================================================================
 
+#if !PTEDIT_T_HEAD_C9XX_BUILD
 UTEST(memtype, get) {
   ASSERT_TRUE(ptedit_get_mts());
 }
@@ -364,6 +365,7 @@ UTEST(memtype, get) {
 UTEST(memtype, get_deterministic) {
   ASSERT_EQ(ptedit_get_mts(), ptedit_get_mts());
 }
+#endif
 
 UTEST(memtype, uncachable) {
   ASSERT_NE(ptedit_find_first_mt(PTEDIT_MT_UC), -1);
@@ -375,24 +377,46 @@ UTEST(memtype, writeback) {
 
 UTEST(memtype, apply) {
   size_t entry = 0;
+
+#if PTEDIT_T_HEAD_C9XX_BUILD
+  ASSERT_NE(ptedit_apply_mt(entry, 1 | PTEDIT_T_HEAD_C9XX_SET), entry);
+  ASSERT_EQ(ptedit_apply_mt(entry, 0 | PTEDIT_T_HEAD_C9XX_SET), entry);
+#else
   ASSERT_NE(ptedit_apply_mt(entry, 1), entry);
   ASSERT_EQ(ptedit_apply_mt(entry, 0), entry);
+#endif
 }
 
 UTEST(memtype, apply_huge) {
   size_t entry = 0;
+
+#if PTEDIT_T_HEAD_C9XX_BUILD
+  ASSERT_NE(ptedit_apply_mt_huge(entry, PTEDIT_MT_UC), entry);
+  ASSERT_EQ(ptedit_apply_mt_huge(entry, PTEDIT_MT_WB), entry);
+#else
   ASSERT_NE(ptedit_apply_mt_huge(entry, 1), entry);
   ASSERT_EQ(ptedit_apply_mt_huge(entry, 0), entry);
+#endif
 }
 
 UTEST(memtype, extract) {
+#if PTEDIT_T_HEAD_C9XX_BUILD
+  ASSERT_TRUE(ptedit_extract_mt(PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE) == PTEDIT_MT_WB);
+  ASSERT_TRUE(ptedit_extract_mt(0) == PTEDIT_MT_UC);
+#else
   ASSERT_TRUE(ptedit_extract_mt(ptedit_apply_mt(0, 5)) == 5);
   ASSERT_TRUE(ptedit_extract_mt(ptedit_apply_mt((size_t)-1, 2)) == 2);
+#endif
 }
 
 UTEST(memtype, extract_huge) {
+#if PTEDIT_T_HEAD_C9XX_BUILD
+  ASSERT_TRUE(ptedit_extract_mt_huge(PTEDIT_PAGE_BIT_T_HEAD_C9XX_CACHEABLE) == PTEDIT_MT_WB);
+  ASSERT_TRUE(ptedit_extract_mt_huge(0) == PTEDIT_MT_UC);
+#else
   ASSERT_TRUE(ptedit_extract_mt_huge(ptedit_apply_mt_huge(0, 5)) == 5);
   ASSERT_TRUE(ptedit_extract_mt_huge(ptedit_apply_mt_huge((size_t)-1, 2)) == 2);
+#endif
 }
 
 UTEST(memtype, uncachable_access_time) {
