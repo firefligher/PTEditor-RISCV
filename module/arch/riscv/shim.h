@@ -32,12 +32,19 @@ static inline pteval_t native_pte_val(pte_t pte) {
   return pte_val(pte);
 }
 
+/**
+ * Determines whether a page table entry is a leaf entry (aka a mapping to a
+ * physical page) or an intermediate pointer one.
+ *
+ * Only if neither the readable, the writable, nor the executable flag is set,
+ * we have a pointer entry.
+ */
+#define TABLE_ENTRY_IS_LEAF(x)  ((((x) >> 1) & 7) ? 1 : 0)
+
 static inline int pud_large(pud_t pud) {
-  /* FIXME: Add an actual implementation. */
-  return 0;
+  return TABLE_ENTRY_IS_LEAF(pud_val(pud));
 }
 
 static inline int pmd_large(pmd_t pmd) {
-  /* FIXME: Add an actual implementation. */
-  return 0;
+  return TABLE_ENTRY_IS_LEAF(pmd_val(pud));
 }

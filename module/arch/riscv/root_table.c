@@ -3,10 +3,6 @@
 #include "../../memory/memory.h"
 #include "../arch.h"
 
-/**
- * NOTE:  Shamelessly copied from x86. Requires validation.
- */
-
 ptedit_status_t ptedit_arch_get_page_root(size_t *dst, pid_t pid) {
   struct mm_struct *mm;
 

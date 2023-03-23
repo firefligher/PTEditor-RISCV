@@ -13,9 +13,9 @@ int ptedit_arch_install_devmem_hook(void) {
   );
 
   return 0;
-#endif
-
+#else
   return 1;
+#endif
 }
 
 void ptedit_arch_uninstall_devmem_hook(void) {

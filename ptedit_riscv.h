@@ -1,5 +1,14 @@
 #pragma once
 
+#define PTEDIT_PAGE_BIT_VALID                 0
+#define PTEDIT_PAGE_BIT_READABLE              1
+#define PTEDIT_PAGE_BIT_WRITABLE              2
+#define PTEDIT_PAGE_BIT_EXECUTABLE            3
+#define PTEDIT_PAGE_BIT_USER_MODE_ACCESSIBLE  4
+#define PTEDIT_PAGE_BIT_GLOBAL                5
+#define PTEDIT_PAGE_BIT_ACCESSED              6
+#define PTEDIT_PAGE_BIT_DIRTY                 7
+
 #define PTEDIT_PAGE_PRESENT 1
 
 #pragma pack(push, 1)
