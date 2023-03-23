@@ -3,6 +3,7 @@
 #include <linux/printk.h>
 #include <linux/sched.h>
 
+#include "../../memory/memory.h"
 #include "../arch.h"
 
 /**
