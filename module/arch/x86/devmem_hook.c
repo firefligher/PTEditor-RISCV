@@ -18,14 +18,17 @@ static struct kretprobe probe = {
 
 static int active = 0;
 
-int ptedit_arch_install_devmem_hook(void) {
+ptedit_status_t ptedit_arch_install_devmem_hook(void) {
   if (active) {
     pr_warn("Called ptedit_arch_install_devmem_hook multiple times.");
-    return 1;
+    return PTEDIT_STATUS_SUCCESS;
   }
 
   active = (register_kretprobe(&probe) == 0);
-  return active;
+
+  return (active)
+    ? PTEDIT_STATUS_SUCCESS
+    : PTEDIT_STATUS_ERROR;
 }
 
 void ptedit_arch_uninstall_devmem_hook(void) {

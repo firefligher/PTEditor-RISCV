@@ -10,5 +10,5 @@
 extern void (*ptedit_shared_invalidate_tlb)(void *);
 extern unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
 
-int ptedit_shared_initialize_symbols(void);
+ptedit_status_t ptedit_shared_initialize_symbols(void);
 void ptedit_shared_invalidate_tlb_custom(void *addr);

@@ -1,6 +1,6 @@
 #include "../arch.h"
 
-int ptedit_arch_install_devmem_hook(void) {
+ptedit_status_t ptedit_arch_install_devmem_hook(void) {
   /*
    * Due to the lack of hardware to test this, we only support this feature on
    * Tina kernels for now.
@@ -12,9 +12,9 @@ int ptedit_arch_install_devmem_hook(void) {
     "RISC-V!"
   );
 
-  return 0;
+  return PTEDIT_STATUS_ERROR;
 #else
-  return 1;
+  return PTEDIT_STATUS_SUCCESS;
 #endif
 }
 

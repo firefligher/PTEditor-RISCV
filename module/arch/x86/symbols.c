@@ -17,13 +17,13 @@ void (*ptedit_arch_flush_tlb_mm_range)(
 
 void (*ptedit_arch_write_cr4)(unsigned long);
 
-int ptedit_arch_initialize_symbols(void) {
+ptedit_status_t ptedit_arch_initialize_symbols(void) {
   ptedit_arch_flush_tlb_mm_range =
     (void *) ptedit_shared_kallsyms_lookup_name(SYM_FLUSH_TLB_MM_RANGE);
 
   if (!ptedit_arch_flush_tlb_mm_range) {
     pr_alert("Could not retrieve " SYM_FLUSH_TLB_MM_RANGE " function.\n");
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
   ptedit_arch_write_cr4 =
@@ -31,8 +31,8 @@ int ptedit_arch_initialize_symbols(void) {
 
   if (!ptedit_arch_write_cr4) {
     pr_alert("Could not retrieve " SYM_NATIVE_WRITE_C4 " function.\n");
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
-  return 1;
+  return PTEDIT_STATUS_SUCCESS;
 }

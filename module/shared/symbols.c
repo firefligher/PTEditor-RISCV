@@ -15,11 +15,11 @@
 unsigned long (*ptedit_shared_kallsyms_lookup_name)(const char *name);
 void (*ptedit_shared_invalidate_tlb)(void *);
 
-static int resolve_kallsyms_lookup_name_with_kprobe(void);
-static int resolve_kallsyms_lookup_name_with_fs(void);
+static ptedit_status_t resolve_kallsyms_lookup_name_with_kprobe(void);
+static ptedit_status_t resolve_kallsyms_lookup_name_with_fs(void);
 void ptedit_shared_fixed_point(void);
 
-int ptedit_shared_initialize_symbols(void) {
+ptedit_status_t ptedit_shared_initialize_symbols(void) {
   ptedit_shared_invalidate_tlb = ptedit_arch_invalidate_tlb_kernel;
 
   /*
@@ -47,7 +47,7 @@ int ptedit_shared_initialize_symbols(void) {
       || resolve_kallsyms_lookup_name_with_fs();
 }
 
-static int resolve_kallsyms_lookup_name_with_kprobe(void) {
+static ptedit_status_t resolve_kallsyms_lookup_name_with_kprobe(void) {
   struct kprobe probe = {
     .symbol_name = SYM_KALLSYMS_LOOKUP_NAME
   };
@@ -60,7 +60,7 @@ static int resolve_kallsyms_lookup_name_with_kprobe(void) {
 
   if (register_kprobe(&probe)) {
     pr_info("Registering kprobe failed.\n");
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
   ptedit_shared_kallsyms_lookup_name = (void *) probe.addr;
@@ -73,13 +73,13 @@ static int resolve_kallsyms_lookup_name_with_kprobe(void) {
       "'.\n"
     );
 
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
-  return 1;
+  return PTEDIT_STATUS_SUCCESS;
 }
 
-static int resolve_kallsyms_lookup_name_with_fs(void) {
+static ptedit_status_t resolve_kallsyms_lookup_name_with_fs(void) {
   /*
    * Adapted from https://stackoverflow.com/a/1184346 and
    * https://stackoverflow.com/a/53917617.
@@ -95,7 +95,7 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
 
   if (!kallsyms_file || IS_ERR(kallsyms_file)) {
     pr_warn("Cannot open file at '" PATH_KALLSYMS_FILE "'.\n");
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
   /*
@@ -195,7 +195,7 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
       addr_kallsyms_lookup_name
     );
 
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
   pr_info(
@@ -220,11 +220,11 @@ static int resolve_kallsyms_lookup_name_with_fs(void) {
       (unsigned long long int) ptedit_shared_fixed_point
     );
 
-    return 0;
+    return PTEDIT_STATUS_ERROR;
   }
 
   ptedit_shared_kallsyms_lookup_name = (void *) addr_kallsyms_lookup_name;
-  return 1;
+  return PTEDIT_STATUS_SUCCESS;
 }
 
 /*

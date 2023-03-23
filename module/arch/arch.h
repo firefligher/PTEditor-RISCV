@@ -36,9 +36,9 @@ extern int real_page_size;
  */
 ptedit_status_t ptedit_arch_get_page_root(size_t *dst, pid_t pid);
 size_t ptedit_arch_get_pat(void);
-int ptedit_arch_initialize_constants(void);
-int ptedit_arch_initialize_symbols(void);
-int ptedit_arch_install_devmem_hook(void);
+ptedit_status_t ptedit_arch_initialize_constants(void);
+ptedit_status_t ptedit_arch_initialize_symbols(void);
+ptedit_status_t ptedit_arch_install_devmem_hook(void);
 void ptedit_arch_invalidate_tlb(void *addr);
 void ptedit_arch_invalidate_tlb_kernel(void *addr);
 void ptedit_arch_set_pat(size_t pat);
