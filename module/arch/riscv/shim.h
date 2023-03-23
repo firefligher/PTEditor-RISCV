@@ -46,5 +46,5 @@ static inline int pud_large(pud_t pud) {
 }
 
 static inline int pmd_large(pmd_t pmd) {
-  return TABLE_ENTRY_IS_LEAF(pmd_val(pud));
+  return TABLE_ENTRY_IS_LEAF(pmd_val(pmd));
 }
