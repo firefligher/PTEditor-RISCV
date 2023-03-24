@@ -477,8 +477,8 @@ ptedit_fnc void ptedit_print_entry_line(size_t entry, int line) {
     PEDIT_PRINT_B("%d", PTEDIT_B(entry, 62));
     PEDIT_PRINT_B("%d", PTEDIT_B(entry, 61));
     PEDIT_PRINT_B(" %d", PTEDIT_B(entry, 60));
-    printf("%3zd|", (entry >> 54) & ((1ull << 8) - 1));
-    printf(" %16zx |", (entry >> 10) & ((1ull << 44) - 1));
+    printf("%3zd|", (size_t) ((entry >> 54) & ((1ull << 8) - 1)));
+    printf(" %16zx |", (size_t) ((entry >> 10) & ((1ull << 44) - 1)));
     PEDIT_PRINT_B("  %d", (PTEDIT_B(entry, 9) << 1) | PTEDIT_B(entry, 8));
     PEDIT_PRINT_B("%d", PTEDIT_B(entry, 7));
     PEDIT_PRINT_B("%d", PTEDIT_B(entry, 6));
@@ -961,19 +961,22 @@ ptedit_fnc void ptedit_set_mts(size_t mts) {
 
 // ---------------------------------------------------------------------------
 ptedit_fnc void ptedit_set_mt(unsigned char mt, unsigned char value) {
-  size_t mts = ptedit_get_mts();
-
 #if PTEDIT_ON_X86
+  size_t mts = ptedit_get_mts();
   mts &= ~(7 << (mt * 8));
-#elif PTEDIT_ON_ARM
-  mts &= ~(0xff << (mt * 8));
-#else
-  ptedit_no_support();
-  return;
-#endif
-
   mts |= ((size_t)value << (mt * 8));
   ptedit_set_mts(mts);
+#elif PTEDIT_ON_ARM
+  size_t mts = ptedit_get_mts();
+  mts &= ~(0xff << (mt * 8));
+  mts |= ((size_t)value << (mt * 8));
+  ptedit_set_mts(mts);
+#else
+  (void) mt;
+  (void) value;
+
+  ptedit_no_support();
+#endif
 }
 
 
@@ -1000,6 +1003,7 @@ ptedit_fnc unsigned char ptedit_find_mt(unsigned char type) {
       }
     }
 #elif PTEDIT_T_HEAD_C9XX_BUILD
+    (void) mts;
     return type;
 #endif
   }
