@@ -1,3 +1,4 @@
+#include "../../memory/memory.h"
 #include "../arch.h"
 
 ptedit_status_t ptedit_arch_get_page_root(size_t *dst, pid_t pid) {

@@ -1,5 +1,4 @@
 #include <linux/compiler.h>
-#include <linux/current.h>
 #include <linux/mm.h>
 #include <linux/mm_types.h>
 #include <linux/smp.h>
@@ -18,7 +17,7 @@ void _flush_tlb_page_smp(void* info) {
 void ptedit_arch_invalidate_tlb_kernel(void *addr) {
   struct vm_area_struct *vma = find_vma(current->mm, (unsigned long) addr);
   tlb_page_t tlb_page;
-  if (unlikely(vma == NULL || addr < vma->vm_start)) {
+  if (unlikely(vma == NULL || ((unsigned long) addr) < vma->vm_start)) {
     return;
   }
   tlb_page.vma = vma;

@@ -115,9 +115,9 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PGD) {
     pr_warn(
-      "Updating PGD (old = %lx, new = %lx)\n",
-      pgd_val(*entry.pgd),
-      pgd_val(*value->pgd)
+      "Updating PGD (old = %llx, new = %llx)\n",
+      (unsigned long long) pgd_val(*entry.pgd),
+      (unsigned long long) pgd_val(*value->pgd)
     );
 
     set_pgd(entry.pgd, *value->pgd);
@@ -126,9 +126,9 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_P4D) {
     pr_warn(
-      "Updating P4D (old = %lx, new = %lx)\n",
-      p4d_val(*entry.p4d),
-      p4d_val(*value->p4d)
+      "Updating P4D (old = %llx, new = %llx)\n",
+      (unsigned long long) p4d_val(*entry.p4d),
+      (unsigned long long) p4d_val(*value->p4d)
     );
 
     set_p4d(entry.p4d, *value->p4d);
@@ -137,9 +137,9 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PUD) {
     pr_warn(
-      "Updating PUD (old = %lx, new = %lx)\n",
-      pud_val(*entry.pud),
-      pud_val(*value->pud)
+      "Updating PUD (old = %llx, new = %llx)\n",
+      (unsigned long long) pud_val(*entry.pud),
+      (unsigned long long) pud_val(*value->pud)
     );
 
     set_pud(entry.pud, *value->pud);
@@ -147,9 +147,9 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PMD) {
     pr_warn(
-      "Updating PMD (old = %lx, new = %lx)\n",
-      pmd_val(*entry.pmd),
-      pmd_val(*value->pmd)
+      "Updating PMD (old = %llx, new = %llx)\n",
+      (unsigned long long) pmd_val(*entry.pmd),
+      (unsigned long long) pmd_val(*value->pmd)
     );
 
     set_pmd(entry.pmd, *value->pmd);
@@ -157,9 +157,9 @@ ptedit_status_t ptedit_vm_update(void *addr, pid_t pid, ptedit_vm_t *value) {
 
   if (entry.valid & value->valid & PTEDIT_VALID_MASK_PTE) {
     pr_warn(
-      "Updating PTE (old = %lx, new = %lx)\n",
-      pte_val(*entry.pte),
-      pte_val(*value->pte)
+      "Updating PTE (old = %llx, new = %llx)\n",
+      (unsigned long long) pte_val(*entry.pte),
+      (unsigned long long) pte_val(*value->pte)
     );
 
     set_pte(entry.pte, *value->pte);
