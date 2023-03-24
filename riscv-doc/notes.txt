@@ -1,0 +1,61 @@
+Notes
+-----
+
+ * ptedit_arch_invalidate_tlb_kernel and ptedit_arch_invalidate_tlb are
+   synonyms on RISC-V, because the Tina Kernel does not provide any visible
+   symbols for flushing the TLB (nothing found in /proc/kallsyms).
+   Instead, we rely on the RISC-V-specific sfence.vma instruction in
+   combination with specifying the virtual memory address of and the ASID of
+   the page that we want to invalidate.
+
+ * It seems like there is nothing like PAT on RISC-V, but there are memory
+   types. While the latest RISC-V specifications specify the svpbmt extension,
+   the D1, respectively the T-Head C9xx chip, does not implement this and
+   instead use an own format.
+   Both standards depend on bits between 54-63 (MSB is 63) at the page table
+   entry. Due to the lack of testing abilities (and also temporal
+   considerations), PTEditor only implements the T-Head C9xx stuff right now.
+
+ * build_header.php replaced the original approach to build the standalone
+   header in order to be more flexible (-> I do not want to name any file that
+   I want to concatenate).
+   PHP was the choice of language, because it looks like interpreted C (if OOP
+   features are ignored), is probably support by nearly all Linux distributions
+   and has not such an awful syntax as Python has.
+
+ * Since the memory type stuff works slightly different on RISC-V, compared to
+   x86, several tests do make much sense and also others have required slight
+   adjustment.
+   Disabling caching for certain pages should be possible.
+
+ * Due to the lack of hardware, the refactored ARM code is highly untested.
+
+Building
+--------
+
+ * If cross compiler and Kernel sources are in place (take a look at the
+   writeup PDF for this), executing the following command from within the
+   module directory should do the trick (adjust as needed):
+   make -C ../../tina-d1x-linux-5.4 M=$PWD ARCH=riscv CROSS_COMPILE=/opt/riscv/bin/riscv64-unknown-linux-gnu- PTEDIT_T_HEAD_C9XX_BUILD=1
+
+ * Whenever building some userland binary for the D1, specify
+   -DPTEDIT_T_HEAD_C9XX_BUILD=1 to ensure that the configuration in the include
+   files is correct.
+
+Feature flag overview
+---------------------
+
+ - PTEDIT_MODULE_BUILD      : If not zero, indicates that the current build
+                              aims to compile the PTEditor Kernel module.
+                              Correspondingly, internal structures inside the
+                              headers will be visible.
+
+ - PTEDIT_TINA_BUILD        : If not zero, indicates that the current build
+                              targets the Tina Kernel. Corresponding fixes and
+                              workarounds will be applied. Sanity check fails,
+                              if not a module build. (Fixes not required for
+                              userland.)
+
+ - PTEDIT_T_HEAD_C9XX_BUILD : If not zero, indicates that the current build
+                              targets a RISC-V board with a T-Head C9xx chip.
+                              Corresponding features will be included.
