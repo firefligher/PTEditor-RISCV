@@ -122,6 +122,18 @@ typedef struct {
   } ptedit_page_t;
 #endif
 
+#if PTEDIT_ON_WINDOWS
+  /**
+   * Structure to read/write physical pages.
+   */
+  __pragma(pack(push, 1))
+  typedef struct {
+    char content[4096];
+    size_t paddr;
+  } ptedit_page_t;
+__pragma(pack(pop))
+#endif
+
 typedef enum {
   PTEDIT_TLB_INVALIDATION_CUSTOM = 1,
   PTEDIT_TLB_INVALIDATION_KERNEL = 0
